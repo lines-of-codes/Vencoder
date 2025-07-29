@@ -1,0 +1,208 @@
+/* An attempt of imitating KDE's Kirigami UI Framework */
+
+:root {
+    --k-grid-unit: 16px;
+    --k-small-spacing: 4px;
+    --k-medium-spacing: 8px;
+    --k-border-radius: 5px;
+    --k-border-color: #b2b4b6;
+    --k-background-color: #eff0f1;
+    --k-secondary-background: #dee0e2;
+    --k-headerbar-unfocused: #eff0f1;
+    --k-primary-highlight: white;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    :root {
+        --k-border-color: #4e5359;
+        --k-headerbar-unfocused: #202326;
+        --k-secondary-background: #292c30;
+        --k-background-color: #202326;
+        --k-primary-highlight: #292c30;
+    }
+
+    body {
+        font-weight: 300;
+    }
+
+    .k-dropdown {
+        background-image: url("/breeze-dark/actions/16/go-down.svg") !important;
+    }
+}
+
+.k-page-header {
+    background-color: var(--k-secondary-background);
+    border-bottom: 1px solid var(--k-border-color);
+    padding: 6px 0;
+
+    .page-title {
+        padding: 0 var(--k-grid-unit);
+        font-weight: 500;
+        font-size: 1.1em;
+    }
+
+    &.k-rborder .page-title {
+        border-right: 1px solid var(--k-border-color);
+    }
+}
+
+.k-page-header.window-blur {
+    background-color: var(--k-headerbar-unfocused);
+}
+
+ul.k-list-view {
+    list-style: none;
+    padding: var(--k-small-spacing);
+    margin: 0;
+
+    &.bordered {
+        border: 1px solid var(--k-border-color);
+        border-radius: var(--k-border-radius);
+    }
+
+    li {
+        border: 2px solid transparent;
+        border-radius: var(--k-border-radius);
+        padding: 0 var(--k-small-spacing);
+    }
+
+    li:hover {
+        border-color: var(--system-accent-color);
+        background-color: var(--system-lighter-accent);
+    }
+
+    li.selected {
+        background-color: var(--system-accent-color);
+    }
+}
+
+.k-white-sidebar {
+    background-color: var(--k-primary-highlight);
+    min-width: 32.5vw;
+
+    &.k-rborder {
+        border-right: 1px solid var(--k-border-color);
+    }
+}
+
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.k-button {
+    border: 1px solid var(--k-border-color);
+    border-radius: var(--k-border-radius);
+    box-shadow: var(--k-border-color) 0 1px;
+    background-color: var(--k-primary-highlight);
+    font-size: inherit;
+
+    &:hover {
+        border-color: var(--system-accent-color);
+    }
+
+    &.k-form-button {
+        max-width: 16em;
+    }
+
+    &:active {
+        background-color: var(--system-lighter-accent);
+    }
+}
+
+.k-dropdown {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: var(--k-primary-highlight);
+    background-image: url("/breeze/actions/16/go-down.svg");
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: right var(--k-medium-spacing) center;
+    padding: var(--k-small-spacing) calc(var(--k-medium-spacing) + 12px)
+        var(--k-small-spacing) var(--k-medium-spacing);
+    border: 1px solid var(--k-border-color);
+    box-shadow: var(--k-border-color) 0 1px;
+    max-width: 16em;
+    font-size: inherit;
+
+    &:hover {
+        border-color: var(--system-accent-color);
+    }
+}
+
+input[type="text"] {
+    background-color: var(--k-primary-highlight);
+    border: 1px solid var(--k-border-color);
+    border-radius: var(--k-border-radius);
+    box-shadow: var(--k-border-color) 0 1px;
+    padding: var(--k-small-spacing) var(--k-medium-spacing);
+    max-width: 14.85em;
+    font-size: inherit;
+
+    &:hover {
+        border-color: var(--system-accent-color);
+    }
+}
+
+input[type="number"] {
+    background-color: var(--k-primary-highlight);
+    border: 1px solid var(--k-border-color);
+    border-radius: var(--k-border-radius);
+    box-shadow: var(--k-border-color) 0 1px;
+    padding: var(--k-small-spacing) var(--k-medium-spacing);
+    max-width: 14.85em;
+    font-size: inherit;
+
+    &:hover {
+        border-color: var(--system-accent-color);
+    }
+}
+
+.k-form {
+    display: grid;
+    gap: var(--k-medium-spacing);
+    grid-template-columns: 40% 60%;
+
+    & > label {
+        display: flex;
+        align-items: center;
+        justify-content: end;
+    }
+}
+
+.k-form-section-title {
+    text-align: center;
+    border-bottom: 1px solid var(--k-border-color);
+    width: fit-content;
+    margin-bottom: var(--k-medium-spacing);
+}
+
+.k-page-footer {
+    padding: var(--k-medium-spacing);
+}
+
+input[type="checkbox"] {
+    width: 1em;
+    height: 1em;
+    border-radius: var(--k-border-radius);
+}
+
+.k-text-field {
+    user-select: text;
+    -webkit-user-select: text;
+    background-color: var(--k-primary-highlight);
+    border: 1px solid var(--k-border-color);
+    padding: var(--k-small-spacing);
+    border-radius: var(--k-border-radius);
+    margin: 0;
+    text-wrap: wrap;
+}
+
+.k-text-field:hover {
+    border-color: var(--system-accent-color);
+}
+
+.p-medium {
+    padding: var(--k-medium-spacing);
+}

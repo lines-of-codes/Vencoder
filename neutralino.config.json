@@ -1,0 +1,44 @@
+{
+    "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralinojs/main/schemas/neutralino.config.schema.json",
+    "applicationId": "xyz.dailitation.linesofcodes.vencoder",
+    "version": "1.0.0",
+    "defaultMode": "window",
+    "documentRoot": "/solid-src/dist/",
+    "url": "/",
+    "enableServer": true,
+    "enableNativeAPI": true,
+    "singlePageServe": true,
+    "tokenSecurity": "none",
+    "nativeAllowList": [
+        "app.*",
+        "os.*",
+        "window.create",
+        "window.setMainMenu",
+        "filesystem.getPathParts",
+        "filesystem.createDirectory",
+        "filesystem.getStats",
+        "debug.log"
+    ],
+    "modes": {
+        "window": {
+            "title": "Vencoder",
+            "width": 800,
+            "height": 600,
+            "minWidth": 600,
+            "minHeight": 400,
+            "icon": "/solid-src/public/vite.svg",
+            "enableInspector": true
+        }
+    },
+    "cli": {
+        "binaryName": "vencoder",
+        "resourcesPath": "/solid-src/dist/",
+        "extensionsPath": "/extensions/",
+        "binaryVersion": "6.2.0",
+        "clientVersion": "6.2.0",
+        "frontendLibrary": {
+            "patchFile": "/solid-src/index.html",
+            "devUrl": "http://localhost:5173"
+        }
+    }
+}
