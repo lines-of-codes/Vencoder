@@ -206,3 +206,7 @@ input[type="checkbox"] {
 .p-medium {
     padding: var(--k-medium-spacing);
 }
+
+.p-grid {
+    padding: var(--k-grid-unit);
+}

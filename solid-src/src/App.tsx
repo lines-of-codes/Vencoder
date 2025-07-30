@@ -13,6 +13,7 @@ import {
 import {
     generateOutputCommand,
     getAvailableCodecs,
+    getLengthMicroseconds,
     playFile,
     videoFileExtensions,
     type CodecInfo,
@@ -25,6 +26,12 @@ import PlaybackStart from "./assets/breeze/actions/16/media-playback-start.svg";
 import TrashEmpty from "./assets/breeze/actions/16/trash-empty.svg";
 
 const commonCodecs = new Set(["h264", "hevc", "vp8", "vp9", "av1", "dnxhd"]);
+
+interface RunningProcessInfo {
+    process: Neutralino.os.SpawnedProcess;
+    file: string;
+    length: number;
+}
 
 function App() {
     const [windowFocused, setWindowFocused] = createSignal(true);
@@ -40,10 +47,9 @@ function App() {
     const [showCommonCodecs, setShowCommonCodecs] = createSignal(true);
     const [selectedCodec, setSelectedCodec] = createSignal<CodecInfo>();
     const [selectedEncoder, setSelectedEncoder] = createSignal("");
-    const [runningProcess, setRunningProcess] = createSignal<{
-        process: Neutralino.os.SpawnedProcess;
-        params: FFmpegParams;
-    }>();
+    const [runningProcesses, setRunningProcesses] = createSignal<
+        RunningProcessInfo[]
+    >([]);
     let supportedCodecs: CodecInfo[] = [];
     let ffmpegParams: FFmpegParams = { vcodec: "" };
     let successfulCount = 0;
@@ -59,35 +65,32 @@ function App() {
     }
 
     function handleSpawnedProcessEvents(evt: CustomEvent) {
-        if (runningProcess()?.process.id !== evt.detail.id) return;
+        if (evt.detail.action !== "exit") return;
 
-        switch (evt.detail.action) {
-            case "stdOut":
-                console.log(evt.detail.data);
-                break;
-            case "stdErr":
-                break;
-            case "exit":
-                if (evt.detail.data === 0) {
-                    successfulCount += 1;
-                } else {
-                    unsuccessfulCount += 1;
-                    Neutralino.os.showNotification(
-                        "File Encoding Failed",
-                        `Encoding for file "${runningProcess()?.params.inputFile}" failed. Exit code ${evt.detail.data}.`,
-                    );
-                }
+        if (evt.detail.data === 0) {
+            successfulCount += 1;
+        } else {
+            unsuccessfulCount += 1;
 
-                if (successfulCount + unsuccessfulCount === totalCount) {
-                    Neutralino.os.showNotification(
-                        "File(s) encoded.",
-                        `${successfulCount} files encoded successfully. ${unsuccessfulCount} failed.`,
-                    );
-                }
-
-                console.log(`FFmpeg exited with code: ${evt.detail.data}`);
-                break;
+            if (evt.detail.data !== 255) {
+                Neutralino.os.showNotification(
+                    "File Encoding Failed",
+                    `Encoding for file "${runningProcesses()?.find((v) => v.process.id == evt.detail.id)?.file}" failed. Exit code ${evt.detail.data}.`,
+                );
+            }
         }
+
+        if (successfulCount + unsuccessfulCount === totalCount) {
+            Neutralino.os.showNotification(
+                "File(s) encoded.",
+                `${successfulCount} files encoded successfully. ${unsuccessfulCount} failed or cancelled.`,
+            );
+            successfulCount = 0;
+            unsuccessfulCount = 0;
+            totalCount = 0;
+        }
+
+        console.log(`FFmpeg exited with code: ${evt.detail.data}`);
     }
 
     onMount(async () => {
@@ -221,7 +224,9 @@ function App() {
         setOutputCommand(generateOutputCommand(ffmpegParams));
     });
 
-    async function convertClip(clip: string) {
+    async function convertClip(
+        clip: string,
+    ): Promise<RunningProcessInfo | undefined> {
         ffmpegParams.inputFile = clip;
 
         const fileName = (await Neutralino.filesystem.getPathParts(clip)).stem;
@@ -264,12 +269,15 @@ function App() {
             }
         } catch (e) {}
 
-        setRunningProcess({
+        const length = await getLengthMicroseconds(clip);
+
+        return {
             process: await Neutralino.os.spawnProcess(
                 generateOutputCommand(ffmpegParams),
             ),
-            params: { ...ffmpegParams },
-        });
+            file: clip,
+            length,
+        };
     }
 
     async function convertAllClicked() {
@@ -277,13 +285,39 @@ function App() {
 
         totalCount = list.length;
 
-        for (const clip of list) {
-            convertClip(clip);
-        }
+        const processes = (await Promise.all(list.map(convertClip))).filter(
+            (v) => v !== undefined,
+        );
+
+        setRunningProcesses(processes);
+
+        await Neutralino.storage.setData(
+            "filesBeingProcessed",
+            JSON.stringify(
+                processes.map((v) => ({
+                    id: v.process.id,
+                    in: v.file,
+                    len: v.length,
+                })),
+            ),
+        );
+
+        await Neutralino.window.create(`${window.location.href}progress`, {
+            width: 600,
+            height: 400,
+            x: 120,
+            y: 120,
+            injectGlobals: true,
+            maximizable: false,
+        });
     }
 
-    function convertSelectedClicked() {
-        convertClip(selectedClip());
+    async function convertSelectedClicked() {
+        const result = await convertClip(selectedClip());
+
+        if (result !== undefined) {
+            setRunningProcesses([]);
+        }
     }
 
     return (

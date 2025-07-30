@@ -17,6 +17,7 @@
         "filesystem.getPathParts",
         "filesystem.createDirectory",
         "filesystem.getStats",
+        "storage.*",
         "debug.log"
     ],
     "modes": {

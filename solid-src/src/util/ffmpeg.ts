@@ -127,3 +127,18 @@ ffmpeg -y -hwaccel auto ${commonOpts} ${
         params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`
     } -progress - "${params.outputFile ?? "{output}"}"`;
 }
+
+export async function getLengthMicroseconds(target: string) {
+    const result = await Neutralino.os.execCommand(
+        `ffprobe -v quiet -of json=c=1 -show_entries format=duration -sexagesimal "${target}"`,
+    );
+    const rawDuration = JSON.parse(result.stdOut)["format"]["duration"].split(
+        ":",
+    ) as string[];
+
+    const hours = parseInt(rawDuration[0]);
+    const minutes = hours * 60 + parseInt(rawDuration[1]);
+    const seconds = minutes * 60 + parseFloat(rawDuration[2]);
+
+    return Math.trunc(seconds * 1000000);
+}
