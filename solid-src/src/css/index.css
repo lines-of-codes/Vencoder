@@ -75,12 +75,14 @@ h2 {
     justify-content: center;
     align-items: center;
 
-    img {
+    img,
+    i {
         width: 16px;
         height: 16px;
     }
 
-    &:disabled img {
+    &:disabled img,
+    &:disabled i {
         filter: invert(50%);
     }
 }

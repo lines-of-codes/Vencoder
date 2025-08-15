@@ -64,12 +64,17 @@ function ProgressPage() {
                     percentage: (parseInt(info.out_time_us) / file.len) * 100,
                 };
 
+                if (Number.isNaN(progressObject[evt.detail.id].percentage)) {
+                    progressObject[evt.detail.id].percentage = 0;
+                }
+
                 setProgressList(Object.values(progressObject));
                 break;
             case "stdErr":
                 break;
             case "exit":
                 console.log(`FFmpeg exited with code: ${evt.detail.data}`);
+
                 os.getSpawnedProcesses().then((processes) => {
                     if (processes.length === 0) {
                         setFinished(true);

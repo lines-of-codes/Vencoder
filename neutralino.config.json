@@ -13,10 +13,7 @@
         "app.*",
         "os.*",
         "window.create",
-        "window.setMainMenu",
-        "filesystem.getPathParts",
-        "filesystem.createDirectory",
-        "filesystem.getStats",
+        "filesystem.*",
         "storage.*",
         "debug.log"
     ],

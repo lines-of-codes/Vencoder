@@ -1,0 +1,38 @@
+.b {
+    width: 1em;
+    height: 1em;
+}
+
+.b-trash-empty {
+    background-image: url("/breeze/actions/16/trash-empty.svg");
+}
+
+.b-configure {
+    background-image: url("/breeze/actions/16/configure.svg");
+}
+
+.b-playback-start {
+    background-image: url("/breeze/actions/16/media-playback-start.svg");
+}
+
+.b-help-about {
+    background-image: url("/breeze/actions/16/help-about.svg");
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .b-trash-empty {
+        background-image: url("/breeze-dark/actions/16/trash-empty.svg");
+    }
+
+    .b-configure {
+        background-image: url("/breeze-dark/actions/16/configure.svg");
+    }
+
+    .b-playback-start {
+        background-image: url("/breeze-dark/actions/16/media-playback-start.svg");
+    }
+
+    .b-help-about {
+        background-image: url("/breeze-dark/actions/16/help-about.svg");
+    }
+}

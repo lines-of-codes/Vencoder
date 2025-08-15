@@ -21,9 +21,11 @@ import {
 } from "./util/ffmpeg";
 import Neutralino from "@neutralinojs/lib";
 import H264Options from "./components/H264Options";
-import Configure from "./assets/breeze/actions/16/configure.svg";
-import PlaybackStart from "./assets/breeze/actions/16/media-playback-start.svg";
-import TrashEmpty from "./assets/breeze/actions/16/trash-empty.svg";
+import { openFile } from "./util/oshelper";
+import { getTemporaryFilePath } from "./util/path";
+import { generateRandomString } from "./util/string";
+import "./css/icons.css";
+import BreezeIcon from "./components/BreezeIcon";
 
 const commonCodecs = new Set(["h264", "hevc", "vp8", "vp9", "av1", "dnxhd"]);
 
@@ -50,6 +52,7 @@ function App() {
     const [runningProcesses, setRunningProcesses] = createSignal<
         RunningProcessInfo[]
     >([]);
+    const logs: { [id: number]: string[] } = {};
     let supportedCodecs: CodecInfo[] = [];
     let ffmpegParams: FFmpegParams = { vcodec: "" };
     let successfulCount = 0;
@@ -65,32 +68,45 @@ function App() {
     }
 
     function handleSpawnedProcessEvents(evt: CustomEvent) {
-        if (evt.detail.action !== "exit") return;
+        switch (evt.detail.action) {
+            case "stdErr":
+                logs[evt.detail.id].push(evt.detail.data);
+                break;
+            case "exit":
+                if (evt.detail.data === 0) {
+                    successfulCount += 1;
+                } else {
+                    unsuccessfulCount += 1;
 
-        if (evt.detail.data === 0) {
-            successfulCount += 1;
-        } else {
-            unsuccessfulCount += 1;
+                    // If the exit code isn't 255 (the exit code of the program exiting because of cancellation)
+                    if (evt.detail.data !== 255) {
+                        Neutralino.os.showNotification(
+                            "File Encoding Failed",
+                            `Encoding for file "${runningProcesses()?.find((v) => v.process.id == evt.detail.id)?.file}" failed. Exit code ${evt.detail.data}.`,
+                        );
 
-            if (evt.detail.data !== 255) {
-                Neutralino.os.showNotification(
-                    "File Encoding Failed",
-                    `Encoding for file "${runningProcesses()?.find((v) => v.process.id == evt.detail.id)?.file}" failed. Exit code ${evt.detail.data}.`,
-                );
-            }
+                        const tempFilename = `${getTemporaryFilePath()}/vencoder-ffmpeg-${generateRandomString(8)}.log`;
+                        Neutralino.filesystem.writeFile(
+                            tempFilename,
+                            logs[evt.detail.id].join("\n"),
+                        );
+                        openFile(tempFilename);
+                    }
+                }
+
+                if (successfulCount + unsuccessfulCount === totalCount) {
+                    Neutralino.os.showNotification(
+                        "File(s) encoded.",
+                        `${successfulCount} files encoded successfully. ${unsuccessfulCount} failed or cancelled.`,
+                    );
+                    successfulCount = 0;
+                    unsuccessfulCount = 0;
+                    totalCount = 0;
+                }
+
+                console.log(`FFmpeg exited with code: ${evt.detail.data}`);
+                break;
         }
-
-        if (successfulCount + unsuccessfulCount === totalCount) {
-            Neutralino.os.showNotification(
-                "File(s) encoded.",
-                `${successfulCount} files encoded successfully. ${unsuccessfulCount} failed or cancelled.`,
-            );
-            successfulCount = 0;
-            unsuccessfulCount = 0;
-            totalCount = 0;
-        }
-
-        console.log(`FFmpeg exited with code: ${evt.detail.data}`);
     }
 
     onMount(async () => {
@@ -291,6 +307,8 @@ function App() {
 
         setRunningProcesses(processes);
 
+        processes.forEach((v) => (logs[v.process.id] = []));
+
         await Neutralino.storage.setData(
             "filesBeingProcessed",
             JSON.stringify(
@@ -315,9 +333,37 @@ function App() {
     async function convertSelectedClicked() {
         const result = await convertClip(selectedClip());
 
-        if (result !== undefined) {
-            setRunningProcesses([]);
+        if (result === undefined) {
+            return;
         }
+
+        console.log(result);
+
+        totalCount = 1;
+
+        setRunningProcesses([result]);
+
+        logs[result.process.id] = [];
+
+        await Neutralino.storage.setData(
+            "filesBeingProcessed",
+            JSON.stringify([
+                {
+                    id: result.process.id,
+                    in: result.file,
+                    len: result.length,
+                },
+            ]),
+        );
+
+        await Neutralino.window.create(`${window.location.href}progress`, {
+            width: 600,
+            height: 400,
+            x: 120,
+            y: 120,
+            injectGlobals: true,
+            maximizable: false,
+        });
     }
 
     return (
@@ -370,8 +416,8 @@ function App() {
                                     onclick={removeBtnClicked}
                                     class="icon-button k-button"
                                 >
-                                    <img
-                                        src={TrashEmpty}
+                                    <BreezeIcon
+                                        icon="b b-trash-empty"
                                         alt="Remove Selected Video"
                                     />
                                 </button>
@@ -380,8 +426,8 @@ function App() {
                                     onclick={playBtnClicked}
                                     class="icon-button k-button"
                                 >
-                                    <img
-                                        src={PlaybackStart}
+                                    <BreezeIcon
+                                        icon="playback-start"
                                         alt="Preview Selected Video"
                                     />
                                 </button>
@@ -389,9 +435,9 @@ function App() {
                                     class="icon-button k-button"
                                     onclick={settingsBtnPressed}
                                 >
-                                    <img
-                                        src={Configure}
-                                        alt="Configure Vencoder"
+                                    <BreezeIcon
+                                        icon="configure"
+                                        alt="Configure"
                                     />
                                 </button>
                             </div>

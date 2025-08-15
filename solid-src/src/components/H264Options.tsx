@@ -1,7 +1,7 @@
 import { createSignal, Show } from "solid-js";
 import type { CodecInfo, FFmpegParams } from "../util/ffmpeg";
-import HelpAbout from "../assets/breeze/actions/16/help-about.svg";
 import { os } from "@neutralinojs/lib";
+import BreezeIcon from "./BreezeIcon";
 
 const information = {
     h264: {
@@ -21,6 +21,10 @@ function H264Options(props: {
     onParamChanged: (key: string, value: any) => void;
 }) {
     const [twopass, setTwopass] = createSignal(false);
+    const defaultCrf =
+        props.codec?.shortName === "h264"
+            ? information.h264.defaultCrf
+            : information.hevc.defaultCrf;
 
     return (
         <section id="commonLossyOptions">
@@ -52,7 +56,7 @@ function H264Options(props: {
                         }
                         title="This will use the two-pass rate control mode instead of relying on a Constant Rate Factor (CRF) value."
                     >
-                        <img src={HelpAbout} />
+                        <BreezeIcon icon="help-about" alt="Help" />
                     </button>
                 </div>
                 <label>Preset</label>
@@ -91,7 +95,9 @@ function H264Options(props: {
                                 type="number"
                                 name="crf"
                                 id="crf"
-                                value={props.params.crf ?? "23"}
+                                min="0"
+                                max="51"
+                                value={props.params.crf ?? defaultCrf}
                                 oninput={(e) => {
                                     props.params.crf = parseInt(e.target.value);
                                     props.onParamChanged(
@@ -149,7 +155,7 @@ function H264Options(props: {
                             }
                             title="This will move some information to the beginning of your file and allow the video to begin playing before it is completely downloaded by the viewer, recommended for web videos. Click for more information."
                         >
-                            <img src={HelpAbout} />
+                            <BreezeIcon icon="help-about" alt="Help" />
                         </button>
                     </div>
                 </Show>
