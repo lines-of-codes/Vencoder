@@ -5,6 +5,10 @@ on:
         branches: [main]
     workflow_dispatch:
 
+defaults:
+    run:
+        shell: sh
+
 jobs:
     build:
         runs-on: alpine-latest
