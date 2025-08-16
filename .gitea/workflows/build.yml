@@ -16,7 +16,7 @@ jobs:
             - name: Installs required programs
               run: |
                   apk upgrade
-                  apk add git nodejs-current
+                  apk add git nodejs-current unzip
                   corepack enable
             - name: Check out the repository code
               uses: actions/checkout@v4
@@ -29,7 +29,8 @@ jobs:
             - name: Package application
               run: |
                   cd ${{ github.workspace }}
-                  pnpx @neutralinojs/neu update
+                  wget https://github.com/neutralinojs/neutralinojs/releases/download/v6.2.0/neutralinojs-v6.2.0.zip
+                  unzip neutralinojs-v6.2.0.zip -d bin/
                   pnpx @neutralinojs/neu build -r
             - name: Upload artifacts
               uses: actions/upload-artifact@v4
