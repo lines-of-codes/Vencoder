@@ -33,7 +33,7 @@ jobs:
                   unzip neutralinojs-v6.2.0.zip -d bin/
                   pnpx @neutralinojs/neu build -r
             - name: Upload artifacts
-              uses: actions/upload-artifact@v4
+              uses: ChristopherHX/gitea-upload-artifact@v4
               with:
                   name: vencoder-release
                   path: ${{ github.workspace }}/dist/vencoder-release.zip
