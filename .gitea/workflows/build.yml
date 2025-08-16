@@ -9,13 +9,13 @@ jobs:
     build:
         runs-on: alpine-latest
         steps:
-            - name: Check out the repository code
-              uses: actions/checkout@v4
             - name: Installs required programs
               run: |
                   apk upgrade
                   apk add git nodejs-current
                   corepack enable
+            - name: Check out the repository code
+              uses: actions/checkout@v4
             - name: Build front-end
               run: |
                   cd ${{ github.workspace }}/solid-src
