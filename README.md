@@ -32,3 +32,16 @@ pnpm build
 cd ..
 neu build
 ```
+
+## Gitea Actions
+
+If you saw this line:
+
+```
+wget https://staticlines.dailitation.xyz/neutralinojs-v6.2.0.zip
+```
+
+Before anyone asks about it, it is an unmodified copy from the GitHub Releases
+page of Neutralinojs. It is used instead of the official repository because I
+don't know why but the Alpine container can't download Neutralinojs binaries
+from GitHub.
