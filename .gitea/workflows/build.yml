@@ -31,9 +31,9 @@ jobs:
                   cd ${{ github.workspace }}
                   wget https://staticlines.dailitation.xyz/neutralinojs-v6.2.0.zip
                   unzip neutralinojs-v6.2.0.zip -d bin/
-                  pnpx @neutralinojs/neu build -r
+                  pnpx @neutralinojs/neu build
             - name: Upload artifacts
               uses: ChristopherHX/gitea-upload-artifact@v4
               with:
-                  name: vencoder-release
-                  path: ${{ github.workspace }}/dist/vencoder-release.zip
+                  name: vencoder-experimental
+                  path: ${{ github.workspace }}/dist/vencoder/

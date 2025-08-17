@@ -26,6 +26,7 @@ import { getTemporaryFilePath } from "./util/path";
 import { generateRandomString } from "./util/string";
 import "./css/icons.css";
 import BreezeIcon from "./components/BreezeIcon";
+import AV1Options from "./components/AV1Options";
 
 const commonCodecs = new Set(["h264", "hevc", "vp8", "vp9", "av1", "dnxhd"]);
 
@@ -52,6 +53,7 @@ function App() {
     const [runningProcesses, setRunningProcesses] = createSignal<
         RunningProcessInfo[]
     >([]);
+    const [customFileExt, setCustomFileExt] = createSignal("");
     const logs: { [id: number]: string[] } = {};
     let supportedCodecs: CodecInfo[] = [];
     let ffmpegParams: FFmpegParams = { vcodec: "" };
@@ -119,6 +121,8 @@ function App() {
 
         const firstCodec = displayedCodecs()[0];
 
+        ffmpegParams.vcodec = firstCodec.shortName;
+        ffmpegParams.encoder = firstCodec.encoders[0];
         setSelectedCodec(firstCodec);
         setSelectedEncoder(firstCodec.encoders[0]);
     });
@@ -191,11 +195,16 @@ function App() {
             ffmpegParams.twopass = false;
         }
 
-        setSelectedCodec(codecObj);
+        ffmpegParams = {
+            vcodec: codecObj?.shortName ?? "",
+        };
+
         let encoder = newValue;
         if (codecObj?.encoders.length !== 0) {
             encoder = codecObj?.encoders[0] ?? "";
         }
+        ffmpegParams.encoder = encoder;
+        setSelectedCodec(codecObj);
         setSelectedEncoder(encoder);
     }
 
@@ -247,8 +256,12 @@ function App() {
 
         const fileName = (await Neutralino.filesystem.getPathParts(clip)).stem;
 
+        const customExt = customFileExt();
+
         const fileExt =
-            videoFileExtensions[selectedCodec()?.shortName ?? ""] ?? "";
+            customExt === ""
+                ? videoFileExtensions[selectedCodec()?.shortName ?? ""]
+                : customExt;
 
         switch (window.NL_OS) {
             case "Linux":
@@ -327,6 +340,7 @@ function App() {
             y: 120,
             injectGlobals: true,
             maximizable: false,
+            enableInspector: false,
         });
     }
 
@@ -363,6 +377,7 @@ function App() {
             y: 120,
             injectGlobals: true,
             maximizable: false,
+            enableInspector: false,
         });
     }
 
@@ -489,6 +504,18 @@ function App() {
                                             Only show common codecs
                                         </label>
                                     </div>
+                                    <label for="fileExt">File Extension</label>
+                                    <input
+                                        type="text"
+                                        name="fileExt"
+                                        id="fileExt"
+                                        title="File extension without the dot. Leave blank to guess from codec."
+                                        value={customFileExt()}
+                                        oninput={(e) =>
+                                            setCustomFileExt(e.target.value)
+                                        }
+                                        placeholder="Leave blank to guess from codec"
+                                    />
                                     <Show
                                         when={
                                             selectedCodec()?.encoders.length !==
@@ -528,6 +555,18 @@ function App() {
                                     >
                                         <H264Options
                                             codec={selectedCodec()}
+                                            params={ffmpegParams}
+                                            onParamChanged={onParametersChanged}
+                                        />
+                                    </Match>
+                                    <Match
+                                        when={
+                                            selectedCodec()?.shortName === "av1"
+                                        }
+                                    >
+                                        <AV1Options
+                                            codec={selectedCodec()}
+                                            encoder={selectedEncoder()}
                                             params={ffmpegParams}
                                             onParamChanged={onParametersChanged}
                                         />

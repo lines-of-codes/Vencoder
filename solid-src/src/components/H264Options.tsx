@@ -1,5 +1,9 @@
 import { createSignal, Show } from "solid-js";
-import type { CodecInfo, FFmpegParams } from "../util/ffmpeg";
+import {
+    DEFAULT_BITRATE,
+    type CodecInfo,
+    type FFmpegParams,
+} from "../util/ffmpeg";
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "./BreezeIcon";
 
@@ -110,13 +114,12 @@ function H264Options(props: {
                     }
                 >
                     <label for="bitrate">Bitrate</label>
-                    {/* Using 12 Mbps (YouTube's recommended bitrate for high frame rate 1080p video) as an arbitrary value */}
                     <div>
                         <input
                             type="number"
                             name="bitrate"
                             id="bitrate"
-                            value={props.params.vbitrate ?? 12000}
+                            value={props.params.vbitrate ?? DEFAULT_BITRATE}
                             oninput={(e) => {
                                 props.params.vbitrate = parseInt(
                                     e.target.value,
