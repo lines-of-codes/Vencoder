@@ -40,9 +40,7 @@ function App() {
     const [windowFocused, setWindowFocused] = createSignal(true);
     const [displayedCodecs, setDisplayedCodecs]: Signal<CodecInfo[]> =
         createSignal([] as CodecInfo[]);
-    const [fileList, setFileList] = createSignal([
-        "/home/satakunu/Videos/litetask_demo.mkv",
-    ]);
+    const [fileList, setFileList] = createSignal([] as string[]);
     const [selectedClip, setSelectedClip] = createSignal("");
     const [outputCommand, setOutputCommand] = createSignal(
         "ffmpeg -i {filename}",

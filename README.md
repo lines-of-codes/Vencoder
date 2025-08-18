@@ -10,6 +10,9 @@ Breeze icons
 -   `./solid-src/src/assets/breeze[-dark]`: Icons used by TSX files
 -   `./solid-src/public/breeze[-dark]`: Icons used by CSS files
 
+Vencoder is tested with FFmpeg 7.1.1, should be compatible with older versions
+but is not guaranteed.
+
 ## Running
 
 In the project's root, To run a basic development setup, you'll need to do the
@@ -32,6 +35,53 @@ pnpm build
 cd ..
 neu build
 ```
+
+## Unimplemented Features
+
+The Settings page doesn't work yet.
+
+## Encoder Support
+
+Vencoder will only support predefined options for "common" codecs. What is
+considered common depends solely on the needs of the program's users.
+
+Note that, not all of these encoders will show up in the program. Only the
+encoders supported by your FFmpeg install will show up.
+
+-   [ ] AV1
+    -   [x] libaom-av1
+    -   [x] librav1e (Partial support)
+    -   [ ] libsvtav1
+    -   [ ] av1_amf
+    -   [ ] av1_nvenc
+    -   [ ] av1_qsv
+    -   [ ] av1_vaapi
+-   [ ] DNxHD
+-   [ ] H.264
+    -   [x] libx264
+    -   [x] libx264rgb (Untested, but _should_ work)
+    -   [ ] h264_amf
+    -   [ ] h264_nvenc
+    -   [ ] h264_qsv
+    -   [ ] h264_v4l2m2m
+    -   [ ] h264_vaapi
+    -   [ ] h264_vulkan
+-   [ ] H.265
+    -   [x] libx265
+    -   [ ] h264_amf
+    -   [ ] h264_nvenc
+    -   [ ] h264_qsv
+    -   [ ] h264_v4l2m2m
+    -   [ ] h264_vaapi
+    -   [ ] h264_vulkan
+-   [ ] VP8
+    -   [ ] libvpx
+    -   [ ] vp8_v4l2m2m
+    -   [ ] vp8_vaapi
+-   [ ] VP9
+    -   [ ] libvpx-vp9
+    -   [ ] vp9_vaapi
+    -   [ ] vp9_qsv
 
 ## Gitea Actions
 

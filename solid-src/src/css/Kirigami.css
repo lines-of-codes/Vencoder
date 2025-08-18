@@ -54,6 +54,7 @@ ul.k-list-view {
     list-style: none;
     padding: var(--k-small-spacing);
     margin: 0;
+    overflow: scroll;
 
     &.bordered {
         border: 1px solid var(--k-border-color);
@@ -78,7 +79,7 @@ ul.k-list-view {
 
 .k-white-sidebar {
     background-color: var(--k-primary-highlight);
-    min-width: 32.5vw;
+    width: 32.5vw;
 
     &.k-rborder {
         border-right: 1px solid var(--k-border-color);

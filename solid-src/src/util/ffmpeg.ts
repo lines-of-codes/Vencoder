@@ -116,11 +116,11 @@ export function generateOutputCommand(params: FFmpegParams) {
             params.preset === undefined ? "" : ` -preset ${params.preset}`
         } -progress -`;
 
-        return `ffmpeg -hwaccel auto -y ${commonOpts} ${params.vcodec === "h265" ? "-x265-params pass=1" : "-pass 1"} ${
+        return `ffmpeg -hwaccel auto -y ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=1" : "-pass 1"} ${
             params.doNotUseAn ? "-vsync cfr" : "-an"
         } -f null ${NULL_LOCATION} &&
 ffmpeg -y -hwaccel auto ${commonOpts} ${
-            params.vcodec === "h265" ? "-x265-params pass=2" : "-pass 2"
+            params.vcodec === "hevc" ? "-x265-params pass=2" : "-pass 2"
         } -c:a ${
             params.acodec ?? "copy"
         }${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`} "${params.outputFile ?? "{output}"}"`;
