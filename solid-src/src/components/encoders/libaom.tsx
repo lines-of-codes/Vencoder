@@ -64,10 +64,12 @@ function LibaomOptions(props: {
                         <BreezeIcon icon="help-about" alt="Help" />
                     </button>
                 </div>
-                <label>Rate-control modes</label>
+                <label for="rateControlMode">Rate-control modes</label>
                 <select
                     class="k-dropdown"
                     onchange={(e) => setRateControlMode(e.target.value)}
+                    name="rateControlMode"
+                    id="rateControlMode"
                 >
                     <option value="Constant">Constant Quality</option>
                     <option value="Constrained">Constrained Quality</option>
@@ -80,7 +82,7 @@ function LibaomOptions(props: {
                         rateControlMode() === "Constrained"
                     }
                 >
-                    <label>CRF</label>
+                    <label for="crf">CRF</label>
                     <input
                         type="number"
                         name="crf"
@@ -97,12 +99,13 @@ function LibaomOptions(props: {
                     />
                 </Show>
                 <Show when={rateControlMode() !== "Constant"}>
-                    <label>Bitrate</label>
-                    <div class="row gap2">
+                    <label for="bitrate">Bitrate</label>
+                    <div class="row gap2 align-items-center">
                         <input
                             type="number"
                             name="bitrate"
                             id="bitrate"
+                            aria-label="Kbps"
                             value={props.params.vbitrate ?? DEFAULT_BITRATE}
                             oninput={(e) => {
                                 props.onParamChanged(

@@ -53,7 +53,7 @@ encoders supported by your FFmpeg install will show up.
     -   [ ] av1_nvenc
     -   [ ] av1_qsv
     -   [ ] av1_vaapi
--   [ ] DNxHD
+-   [x] DNxHD (Does not provide options to deal with its pickiness yet)
 -   [ ] H.264
     -   [x] libx264
     -   [x] libx264rgb (Untested, but _should_ work)

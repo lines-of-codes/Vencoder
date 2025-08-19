@@ -103,6 +103,10 @@ export interface FFmpegParams {
      * Extra parameters defined by users
      */
     useropts: ExtraFFmpegArguments;
+    /**
+     * Extra output parameters defined by Vencoder
+     */
+    outputopts?: { [key: string]: string };
 }
 
 const NULL_LOCATION = window.NL_OS === "Windows" ? "NUL" : "/dev/null";
@@ -127,6 +131,13 @@ export function generateOutputCommand(params: FFmpegParams) {
 
     if (params.useropts.global !== "") {
         globalopts += " " + params.useropts.global;
+    }
+
+    if (params.outputopts !== undefined) {
+        console.log(params.outputopts);
+        for (const key of Object.keys(params.outputopts)) {
+            outputopts += ` -${key} ${params.outputopts[key]}`.trimEnd();
+        }
     }
 
     if (params.twopass) {

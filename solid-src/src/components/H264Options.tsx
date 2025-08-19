@@ -63,7 +63,7 @@ function H264Options(props: {
                         <BreezeIcon icon="help-about" alt="Help" />
                     </button>
                 </div>
-                <label>Preset</label>
+                <label for="encodingPreset">Preset</label>
                 <select
                     class="k-dropdown"
                     name="encodingPreset"

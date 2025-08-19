@@ -27,6 +27,7 @@ import { generateRandomString } from "./util/string";
 import "./css/icons.css";
 import BreezeIcon from "./components/BreezeIcon";
 import AV1Options from "./components/AV1Options";
+import DNxHDOptions from "./components/DNxHDOptions";
 
 const commonCodecs = new Set(["h264", "hevc", "vp8", "vp9", "av1", "dnxhd"]);
 
@@ -540,7 +541,9 @@ function App() {
                                             0
                                         }
                                     >
-                                        <label>Encoder</label>
+                                        <label for="videoEncoder">
+                                            Encoder
+                                        </label>
                                         <select
                                             name="videoEncoder"
                                             id="videoEncoder"
@@ -589,14 +592,31 @@ function App() {
                                             onParamChanged={onParametersChanged}
                                         />
                                     </Match>
+                                    <Match
+                                        when={
+                                            selectedCodec()?.shortName ===
+                                            "dnxhd"
+                                        }
+                                    >
+                                        <DNxHDOptions
+                                            codec={selectedCodec()}
+                                            params={ffmpegParams}
+                                            onParamChanged={onParametersChanged}
+                                        />
+                                    </Match>
                                 </Switch>
                                 <div class="row flex-col align-items-center">
                                     <h3 class="k-form-section-title">
                                         Extra Arguments
                                     </h3>
                                 </div>
-                                <form class="k-form">
-                                    <label>Global Options</label>
+                                <form
+                                    class="k-form"
+                                    onsubmit={(e) => e.preventDefault()}
+                                >
+                                    <label for="globalopts">
+                                        Global Options
+                                    </label>
                                     <input
                                         type="text"
                                         name="globalopts"
@@ -608,7 +628,7 @@ function App() {
                                             setGlobalopts(e.target.value);
                                         }}
                                     />
-                                    <label>Input Options</label>
+                                    <label for="inputopts">Input Options</label>
                                     <input
                                         type="text"
                                         name="inputopts"
@@ -620,7 +640,9 @@ function App() {
                                             setInputopts(e.target.value);
                                         }}
                                     />
-                                    <label>Output Options</label>
+                                    <label for="outputopts">
+                                        Output Options
+                                    </label>
                                     <input
                                         type="text"
                                         name="outputopts"
