@@ -5,10 +5,7 @@ A tool to interactively (re-)encode videos using FFmpeg.
 Uses Neutralino.js and Solid.js.
 
 This app _tries_ to imitate KDE's Kirigami UI framework, and also makes use of
-Breeze icons
-
--   `./solid-src/src/assets/breeze[-dark]`: Icons used by TSX files
--   `./solid-src/public/breeze[-dark]`: Icons used by CSS files
+Breeze icons (Located in `./solid-src/public/breeze[-dark]`)
 
 Vencoder is tested with FFmpeg 7.1.1, should be compatible with older versions
 but is not guaranteed.

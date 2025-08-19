@@ -1,4 +1,8 @@
-import { type CodecInfo, type FFmpegParams } from "@/util/ffmpeg";
+import {
+    DEFAULT_BITRATE,
+    type CodecInfo,
+    type FFmpegParams,
+} from "@/util/ffmpeg";
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "@/components/BreezeIcon";
 import { onMount } from "solid-js";
@@ -10,7 +14,10 @@ function Librav1eOptions(props: {
 }) {
     onMount(() => {
         props.onParamChanged("crf", undefined);
-        props.onParamChanged("vbitrate", undefined);
+        props.onParamChanged(
+            "vbitrate",
+            props.params.vbitrate ?? DEFAULT_BITRATE,
+        );
         props.onParamChanged("speed", 5);
     });
 
@@ -46,6 +53,19 @@ function Librav1eOptions(props: {
                         props.onParamChanged("speed", e.target.value)
                     }
                 />
+                <label for="bitrate">Bitrate</label>
+                <div class="row gap2 align-items-center">
+                    <input
+                        type="number"
+                        name="bitrate"
+                        id="bitrate"
+                        value={props.params.vbitrate ?? DEFAULT_BITRATE}
+                        oninput={(e) =>
+                            props.onParamChanged("vbitrate", e.target.value)
+                        }
+                    />
+                    <span>Kbps</span>
+                </div>
             </div>
         </section>
     );

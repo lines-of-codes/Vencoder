@@ -72,6 +72,12 @@ export const videoFileExtensions: { [key: string]: string } = {
     vp9: "mkv",
 };
 
+export interface ExtraFFmpegArguments {
+    global: string;
+    input: string;
+    output: string;
+}
+
 export interface FFmpegParams {
     inputFile?: string;
     outputFile?: string;
@@ -93,6 +99,10 @@ export interface FFmpegParams {
     faststart?: boolean;
     doNotUseAn?: boolean;
     speed?: number;
+    /**
+     * Extra parameters defined by users
+     */
+    useropts: ExtraFFmpegArguments;
 }
 
 const NULL_LOCATION = window.NL_OS === "Windows" ? "NUL" : "/dev/null";
@@ -109,24 +119,34 @@ export function generateOutputCommand(params: FFmpegParams) {
             ? " -movflags +faststart"
             : "";
 
+    let globalopts = "-hwaccel auto -y";
+    let inputopts =
+        params.useropts.input !== "" ? " " + params.useropts.input : "";
+    let outputopts =
+        params.useropts.output !== "" ? " " + params.useropts.output : "";
+
+    if (params.useropts.global !== "") {
+        globalopts += " " + params.useropts.global;
+    }
+
     if (params.twopass) {
-        const commonOpts = `-i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec} -b:v ${
+        const commonOpts = `${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec} -b:v ${
             params.vbitrate ?? DEFAULT_BITRATE
         }k${faststart}${
             params.preset === undefined ? "" : ` -preset ${params.preset}`
-        } -progress -`;
+        } -progress -${outputopts}`;
 
-        return `ffmpeg -hwaccel auto -y ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=1" : "-pass 1"} ${
+        return `ffmpeg ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=1" : "-pass 1"} ${
             params.doNotUseAn ? "-vsync cfr" : "-an"
         } -f null ${NULL_LOCATION} &&
-ffmpeg -y -hwaccel auto ${commonOpts} ${
+ffmpeg ${commonOpts} ${
             params.vcodec === "hevc" ? "-x265-params pass=2" : "-pass 2"
         } -c:a ${
             params.acodec ?? "copy"
         }${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`} "${params.outputFile ?? "{output}"}"`;
     }
 
-    return `ffmpeg -y -hwaccel auto -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec}${
+    return `ffmpeg ${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec}${
         params.crf === undefined ? "" : ` -crf ${params.crf}`
     }${
         params.vbitrate === undefined ? "" : ` -b:v ${params.vbitrate}`
@@ -136,7 +156,7 @@ ffmpeg -y -hwaccel auto ${commonOpts} ${
         params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`
     }${
         params.speed === undefined ? "" : ` -speed ${params.speed}`
-    } -progress - "${params.outputFile ?? "{output}"}"`;
+    } -progress -${outputopts} "${params.outputFile ?? "{output}"}"`;
 }
 
 export async function getLengthMicroseconds(target: string) {

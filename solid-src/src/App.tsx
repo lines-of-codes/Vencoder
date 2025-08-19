@@ -52,9 +52,19 @@ function App() {
         RunningProcessInfo[]
     >([]);
     const [customFileExt, setCustomFileExt] = createSignal("");
+    const [globalopts, setGlobalopts] = createSignal("");
+    const [inputopts, setInputopts] = createSignal("");
+    const [outputopts, setOutputopts] = createSignal("");
     const logs: { [id: number]: string[] } = {};
     let supportedCodecs: CodecInfo[] = [];
-    let ffmpegParams: FFmpegParams = { vcodec: "" };
+    let ffmpegParams: FFmpegParams = {
+        vcodec: "",
+        useropts: {
+            global: "",
+            input: "",
+            output: "",
+        },
+    };
     let successfulCount = 0;
     let unsuccessfulCount = 0;
     let totalCount = 0;
@@ -195,6 +205,11 @@ function App() {
 
         ffmpegParams = {
             vcodec: codecObj?.shortName ?? "",
+            useropts: {
+                global: "",
+                input: "",
+                output: "",
+            },
         };
 
         let encoder = newValue;
@@ -242,6 +257,11 @@ function App() {
             preset: ffmpegParams.preset,
             twopass: ffmpegParams.twopass,
             vbitrate: ffmpegParams.vbitrate,
+            useropts: {
+                global: globalopts(),
+                input: inputopts(),
+                output: outputopts(),
+            },
         };
 
         setOutputCommand(generateOutputCommand(ffmpegParams));
@@ -570,6 +590,49 @@ function App() {
                                         />
                                     </Match>
                                 </Switch>
+                                <div class="row flex-col align-items-center">
+                                    <h3 class="k-form-section-title">
+                                        Extra Arguments
+                                    </h3>
+                                </div>
+                                <form class="k-form">
+                                    <label>Global Options</label>
+                                    <input
+                                        type="text"
+                                        name="globalopts"
+                                        id="globalopts"
+                                        value={globalopts()}
+                                        oninput={(e) => {
+                                            ffmpegParams.useropts.global =
+                                                e.target.value;
+                                            setGlobalopts(e.target.value);
+                                        }}
+                                    />
+                                    <label>Input Options</label>
+                                    <input
+                                        type="text"
+                                        name="inputopts"
+                                        id="inputopts"
+                                        value={inputopts()}
+                                        oninput={(e) => {
+                                            ffmpegParams.useropts.input =
+                                                e.target.value;
+                                            setInputopts(e.target.value);
+                                        }}
+                                    />
+                                    <label>Output Options</label>
+                                    <input
+                                        type="text"
+                                        name="outputopts"
+                                        id="outputopts"
+                                        value={outputopts()}
+                                        oninput={(e) => {
+                                            ffmpegParams.useropts.output =
+                                                e.target.value;
+                                            setOutputopts(e.target.value);
+                                        }}
+                                    />
+                                </form>
                             </div>
                             <div class="row flex-col p-medium">
                                 <label for="outputCommand">Command</label>
