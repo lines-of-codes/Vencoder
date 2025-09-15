@@ -78,7 +78,7 @@ encoders supported by your FFmpeg install will show up.
 -   [ ] VP9
     -   [ ] libvpx-vp9
     -   [ ] vp9_vaapi
-    -   [ ] vp9_qsv
+    -   [x] vp9_qsv (Really Basic)
 
 ## Gitea Actions
 
