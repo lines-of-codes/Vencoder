@@ -7,24 +7,27 @@ export interface CodecInfo {
     encoders: string[];
 }
 
-export async function getAvailableCodecs(): Promise<CodecInfo[]> {
+export type CodecList = {
+    vcodecs: CodecInfo[],
+    acodecs: CodecInfo[]
+}
+
+export async function getAvailableCodecs(): Promise<CodecList> {
     const seperator = "-------";
-    const videoEncodingSupported = /.EV.../;
     const wideFormattingSpaces = / {2,}/;
     const decodeEncodeSpecification = / \(((decoders)|(encoders)):.+\)/g;
     const result = await Neutralino.os.execCommand("ffmpeg -codecs");
     const rawCodecList = result.stdOut
         .substring(result.stdOut.indexOf(seperator) + seperator.length)
         .split("\n");
-    let codecs = [];
+    let vcodecs = [];
+    let acodecs = [];
 
     for (let codec of rawCodecList) {
         codec = codec.trim();
         const flags = codec.substring(0, 6);
 
-        if (!videoEncodingSupported.test(flags)) {
-            continue;
-        }
+        if (flags[1] !== "E") continue;
 
         const nameAndDescription = codec
             .substring(7)
@@ -48,15 +51,27 @@ export async function getAvailableCodecs(): Promise<CodecInfo[]> {
                 .split(" ");
         }
 
-        codecs.push({
-            flags,
-            shortName,
-            description,
-            encoders,
-        });
+        if (flags[2] === "V") {
+            vcodecs.push({
+                flags,
+                shortName,
+                description,
+                encoders,
+            });
+        } else if (flags[2] === "A") {
+            acodecs.push({
+                flags,
+                shortName,
+                description,
+                encoders,
+            });
+        }
     }
 
-    return codecs;
+    return {
+        vcodecs,
+        acodecs
+    };
 }
 
 export function playFile(path: string) {

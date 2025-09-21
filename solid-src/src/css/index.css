@@ -92,3 +92,13 @@ h2 {
     gap: var(--k-medium-spacing);
     align-items: center;
 }
+
+.page-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: var(--k-grid-unit) var(--k-small-spacing);
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 90vh;
+}

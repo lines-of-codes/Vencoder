@@ -17,12 +17,13 @@ import {
     playFile,
     videoFileExtensions,
     type CodecInfo,
+    type CodecList,
     type FFmpegParams,
 } from "./util/ffmpeg";
 import Neutralino from "@neutralinojs/lib";
 import H264Options from "./components/H264Options";
 import { openFile } from "./util/oshelper";
-import { getTemporaryFilePath } from "./util/path";
+import { getTemporaryFilePath, getVencoderFolder } from "./util/path";
 import { generateRandomString } from "./util/string";
 import "./css/icons.css";
 import BreezeIcon from "./components/BreezeIcon";
@@ -41,6 +42,7 @@ function App() {
     const [windowFocused, setWindowFocused] = createSignal(true);
     const [displayedCodecs, setDisplayedCodecs]: Signal<CodecInfo[]> =
         createSignal([] as CodecInfo[]);
+    const [audioCodecList, setAudioCodecList] = createSignal([] as CodecInfo[]);
     const [fileList, setFileList] = createSignal([] as string[]);
     const [selectedClip, setSelectedClip] = createSignal("");
     const [outputCommand, setOutputCommand] = createSignal(
@@ -56,8 +58,9 @@ function App() {
     const [globalopts, setGlobalopts] = createSignal("");
     const [inputopts, setInputopts] = createSignal("");
     const [outputopts, setOutputopts] = createSignal("");
+    const [audioCodec, setAudioCodec] = createSignal("copy");
     const logs: { [id: number]: string[] } = {};
-    let supportedCodecs: CodecInfo[] = [];
+    let supportedCodecs: CodecList = { vcodecs: [], acodecs: [] };
     let ffmpegParams: FFmpegParams = {
         vcodec: "",
         useropts: {
@@ -127,6 +130,7 @@ function App() {
 
         supportedCodecs = await getAvailableCodecs();
         filterDisplayedCodecs();
+        setAudioCodecList(supportedCodecs.acodecs);
 
         const firstCodec = displayedCodecs()[0];
 
@@ -180,12 +184,14 @@ function App() {
     function filterDisplayedCodecs() {
         if (showCommonCodecs()) {
             setDisplayedCodecs(
-                supportedCodecs.filter((v) => commonCodecs.has(v.shortName)),
+                supportedCodecs.vcodecs.filter((v) =>
+                    commonCodecs.has(v.shortName),
+                ),
             );
             return;
         }
 
-        setDisplayedCodecs(supportedCodecs);
+        setDisplayedCodecs(supportedCodecs.vcodecs);
     }
 
     function showCommonCodecsChanged(e: InputEvent) {
@@ -248,7 +254,7 @@ function App() {
         ffmpegParams = {
             vcodec: selectedCodec()?.shortName ?? "",
             encoder,
-            acodec: ffmpegParams.acodec,
+            acodec: audioCodec(),
             abitrate: ffmpegParams.abitrate,
             crf: ffmpegParams.crf,
             doNotUseAn: ffmpegParams.doNotUseAn,
@@ -282,14 +288,7 @@ function App() {
                 ? videoFileExtensions[selectedCodec()?.shortName ?? ""]
                 : customExt;
 
-        switch (window.NL_OS) {
-            case "Linux":
-                ffmpegParams.outputFile = `${await Neutralino.os.getEnv("HOME")}/Vencoder/${fileName}.${fileExt}`;
-                break;
-            case "Windows":
-                ffmpegParams.outputFile = `${await Neutralino.os.getEnv("HOMEPATH")}\\Vencoder\\${fileName}.${fileExt}`;
-                break;
-        }
+        ffmpegParams.outputFile = `${await getVencoderFolder()}${fileName}.${fileExt}`;
 
         const outputDir = (
             await Neutralino.filesystem.getPathParts(
@@ -401,288 +400,255 @@ function App() {
     }
 
     return (
-        <main class="row flex-col">
-            <div class="container" style={{ flex: "1" }}>
-                <div class="row h-full">
-                    <div class="row flex-col h-full">
-                        <header
-                            class={`k-page-header k-rborder ${windowFocused() ? "" : "window-blur"}`}
+        <main class="row">
+            <div class="row flex-col h-full">
+                <header
+                    class={`k-page-header k-rborder ${windowFocused() ? "" : "window-blur"}`}
+                >
+                    <div class="page-title">Vencoder</div>
+                </header>
+                <div
+                    class="row flex-col gap2 k-white-sidebar k-rborder h-full"
+                    style={{ padding: "8px" }}
+                >
+                    <ul class="k-list-view bordered col">
+                        <For each={fileList()}>
+                            {(item, _) => (
+                                <li
+                                    class={
+                                        item == selectedClip() ? "selected" : ""
+                                    }
+                                    onclick={() => setSelectedClip(item)}
+                                >
+                                    {item}
+                                </li>
+                            )}
+                        </For>
+                    </ul>
+                    <div class="row gap2">
+                        <button onclick={openBtnClicked} class="k-button">
+                            Open...
+                        </button>
+                        <button onclick={removeAllBtnClicked} class="k-button">
+                            Remove All
+                        </button>
+                        <button
+                            disabled={selectedClip() === ""}
+                            onclick={removeBtnClicked}
+                            class="icon-button k-button"
                         >
-                            <div class="page-title">Vencoder</div>
-                        </header>
-                        <div
-                            class="row flex-col gap2 k-white-sidebar k-rborder h-full"
-                            style={{ padding: "8px" }}
+                            <BreezeIcon
+                                icon="b b-trash-empty"
+                                alt="Remove Selected Video"
+                            />
+                        </button>
+                        <button
+                            disabled={selectedClip() === ""}
+                            onclick={playBtnClicked}
+                            class="icon-button k-button"
                         >
-                            <ul class="k-list-view bordered col">
-                                <For each={fileList()}>
-                                    {(item, _) => (
-                                        <li
-                                            class={
-                                                item == selectedClip()
-                                                    ? "selected"
-                                                    : ""
-                                            }
-                                            onclick={() =>
-                                                setSelectedClip(item)
-                                            }
-                                        >
-                                            {item}
-                                        </li>
-                                    )}
-                                </For>
-                            </ul>
-                            <div class="row gap2">
-                                <button
-                                    onclick={openBtnClicked}
-                                    class="k-button"
-                                >
-                                    Open...
-                                </button>
-                                <button
-                                    onclick={removeAllBtnClicked}
-                                    class="k-button"
-                                >
-                                    Remove All
-                                </button>
-                                <button
-                                    disabled={selectedClip() === ""}
-                                    onclick={removeBtnClicked}
-                                    class="icon-button k-button"
-                                >
-                                    <BreezeIcon
-                                        icon="b b-trash-empty"
-                                        alt="Remove Selected Video"
-                                    />
-                                </button>
-                                <button
-                                    disabled={selectedClip() === ""}
-                                    onclick={playBtnClicked}
-                                    class="icon-button k-button"
-                                >
-                                    <BreezeIcon
-                                        icon="playback-start"
-                                        alt="Preview Selected Video"
-                                    />
-                                </button>
-                                <button
-                                    class="icon-button k-button"
-                                    onclick={settingsBtnPressed}
-                                >
-                                    <BreezeIcon
-                                        icon="configure"
-                                        alt="Configure"
-                                    />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row flex-col h-full" style={{ width: "100%" }}>
-                        <header
-                            class={`k-page-header ${windowFocused() ? "" : "window-blur"}`}
+                            <BreezeIcon
+                                icon="playback-start"
+                                alt="Preview Selected Video"
+                            />
+                        </button>
+                        <button
+                            class="icon-button k-button"
+                            onclick={settingsBtnPressed}
                         >
-                            <div class="page-title">Conversion Settings</div>
-                        </header>
-                        <div
-                            class="col row flex-col"
-                            style={{
-                                padding:
-                                    "var(--k-grid-unit) var(--k-small-spacing)",
-                                flex: "1",
-                            }}
-                        >
-                            <div>
-                                <form
-                                    class="k-form"
-                                    onsubmit={(e) => e.preventDefault()}
-                                >
-                                    <label for="targetCodec">Codec</label>
-                                    <select
-                                        class="k-dropdown"
-                                        id="targetCodec"
-                                        oninput={selectedCodecsChanged}
-                                    >
-                                        <For each={displayedCodecs()}>
-                                            {(item, _) => (
-                                                <option value={item.shortName}>
-                                                    {item.description}
-                                                </option>
-                                            )}
-                                        </For>
-                                    </select>
-                                    <div></div>
-                                    <div class="checkbox-container">
-                                        <input
-                                            type="checkbox"
-                                            name="commonCodecs"
-                                            id="commonCodecs"
-                                            oninput={showCommonCodecsChanged}
-                                            checked
-                                        />
-                                        <label for="commonCodecs">
-                                            Only show common codecs
-                                        </label>
-                                    </div>
-                                    <label for="fileExt">File Extension</label>
-                                    <input
-                                        type="text"
-                                        name="fileExt"
-                                        id="fileExt"
-                                        title="File extension without the dot. Leave blank to guess from codec."
-                                        value={customFileExt()}
-                                        oninput={(e) =>
-                                            setCustomFileExt(e.target.value)
-                                        }
-                                        placeholder="Leave blank to guess from codec"
-                                    />
-                                    <Show
-                                        when={
-                                            selectedCodec()?.encoders.length !==
-                                            0
-                                        }
-                                    >
-                                        <label for="videoEncoder">
-                                            Encoder
-                                        </label>
-                                        <select
-                                            name="videoEncoder"
-                                            id="videoEncoder"
-                                            class="k-dropdown"
-                                            value={selectedEncoder()}
-                                            oninput={(e) =>
-                                                setSelectedEncoder(
-                                                    e.target.value,
-                                                )
-                                            }
-                                        >
-                                            <For
-                                                each={selectedCodec()?.encoders}
-                                            >
-                                                {(item, _) => (
-                                                    <option>{item}</option>
-                                                )}
-                                            </For>
-                                        </select>
-                                    </Show>
-                                </form>
-                                <Switch fallback={<div></div>}>
-                                    <Match
-                                        when={
-                                            selectedCodec()?.shortName ===
-                                                "h264" ||
-                                            selectedCodec()?.shortName ===
-                                                "hevc"
-                                        }
-                                    >
-                                        <H264Options
-                                            codec={selectedCodec()}
-                                            params={ffmpegParams}
-                                            onParamChanged={onParametersChanged}
-                                        />
-                                    </Match>
-                                    <Match
-                                        when={
-                                            selectedCodec()?.shortName === "av1"
-                                        }
-                                    >
-                                        <AV1Options
-                                            codec={selectedCodec()}
-                                            encoder={selectedEncoder()}
-                                            params={ffmpegParams}
-                                            onParamChanged={onParametersChanged}
-                                        />
-                                    </Match>
-                                    <Match
-                                        when={
-                                            selectedCodec()?.shortName ===
-                                            "dnxhd"
-                                        }
-                                    >
-                                        <DNxHDOptions
-                                            codec={selectedCodec()}
-                                            params={ffmpegParams}
-                                            onParamChanged={onParametersChanged}
-                                        />
-                                    </Match>
-                                </Switch>
-                                <div class="row flex-col align-items-center">
-                                    <h3 class="k-form-section-title">
-                                        Extra Arguments
-                                    </h3>
-                                </div>
-                                <form
-                                    class="k-form"
-                                    onsubmit={(e) => e.preventDefault()}
-                                >
-                                    <label for="globalopts">
-                                        Global Options
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="globalopts"
-                                        id="globalopts"
-                                        value={globalopts()}
-                                        oninput={(e) => {
-                                            ffmpegParams.useropts.global =
-                                                e.target.value;
-                                            setGlobalopts(e.target.value);
-                                        }}
-                                    />
-                                    <label for="inputopts">Input Options</label>
-                                    <input
-                                        type="text"
-                                        name="inputopts"
-                                        id="inputopts"
-                                        value={inputopts()}
-                                        oninput={(e) => {
-                                            ffmpegParams.useropts.input =
-                                                e.target.value;
-                                            setInputopts(e.target.value);
-                                        }}
-                                    />
-                                    <label for="outputopts">
-                                        Output Options
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="outputopts"
-                                        id="outputopts"
-                                        value={outputopts()}
-                                        oninput={(e) => {
-                                            ffmpegParams.useropts.output =
-                                                e.target.value;
-                                            setOutputopts(e.target.value);
-                                        }}
-                                    />
-                                </form>
-                            </div>
-                            <div class="row flex-col p-medium">
-                                <label for="outputCommand">Command</label>
-                                <pre
-                                    id="outputCommand"
-                                    class="k-text-field w-full col"
-                                >
-                                    {outputCommand()}
-                                </pre>
-                            </div>
-                        </div>
-                        <footer class="k-page-footer row gap2">
-                            <button
-                                class="k-button"
-                                onclick={convertAllClicked}
-                            >
-                                Convert All
-                            </button>
-                            <button
-                                class="k-button"
-                                onclick={convertSelectedClicked}
-                                disabled={selectedClip() === ""}
-                            >
-                                Convert Selected
-                            </button>
-                        </footer>
+                            <BreezeIcon icon="configure" alt="Configure" />
+                        </button>
                     </div>
                 </div>
+            </div>
+            <div class="row flex-col h-full" style={{ width: "100%" }}>
+                <header
+                    class={`k-page-header ${windowFocused() ? "" : "window-blur"}`}
+                >
+                    <div class="page-title">Conversion Settings</div>
+                </header>
+                <div class="page-content">
+                    <div>
+                        <form
+                            class="k-form"
+                            onsubmit={(e) => e.preventDefault()}
+                        >
+                            <label for="targetCodec">Codec</label>
+                            <select
+                                class="k-dropdown"
+                                id="targetCodec"
+                                oninput={selectedCodecsChanged}
+                            >
+                                <For each={displayedCodecs()}>
+                                    {(item, _) => (
+                                        <option value={item.shortName}>
+                                            {item.description}
+                                        </option>
+                                    )}
+                                </For>
+                            </select>
+                            <div></div>
+                            <div class="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    name="commonCodecs"
+                                    id="commonCodecs"
+                                    oninput={showCommonCodecsChanged}
+                                    checked
+                                />
+                                <label for="commonCodecs">
+                                    Only show common codecs
+                                </label>
+                            </div>
+                            <label for="fileExt">File Extension</label>
+                            <input
+                                type="text"
+                                name="fileExt"
+                                id="fileExt"
+                                title="File extension without the dot. Leave blank to guess from codec."
+                                value={customFileExt()}
+                                oninput={(e) =>
+                                    setCustomFileExt(e.target.value)
+                                }
+                                placeholder="Leave blank to guess from codec"
+                            />
+                            <Show when={selectedCodec()?.encoders.length !== 0}>
+                                <label for="videoEncoder">Encoder</label>
+                                <select
+                                    name="videoEncoder"
+                                    id="videoEncoder"
+                                    class="k-dropdown"
+                                    value={selectedEncoder()}
+                                    oninput={(e) =>
+                                        setSelectedEncoder(e.target.value)
+                                    }
+                                >
+                                    <For each={selectedCodec()?.encoders}>
+                                        {(item, _) => <option>{item}</option>}
+                                    </For>
+                                </select>
+                            </Show>
+                        </form>
+                        <Switch fallback={<div></div>}>
+                            <Match
+                                when={
+                                    selectedCodec()?.shortName === "h264" ||
+                                    selectedCodec()?.shortName === "hevc"
+                                }
+                            >
+                                <H264Options
+                                    codec={selectedCodec()}
+                                    params={ffmpegParams}
+                                    onParamChanged={onParametersChanged}
+                                />
+                            </Match>
+                            <Match when={selectedCodec()?.shortName === "av1"}>
+                                <AV1Options
+                                    codec={selectedCodec()}
+                                    encoder={selectedEncoder()}
+                                    params={ffmpegParams}
+                                    onParamChanged={onParametersChanged}
+                                />
+                            </Match>
+                            <Match
+                                when={selectedCodec()?.shortName === "dnxhd"}
+                            >
+                                <DNxHDOptions
+                                    codec={selectedCodec()}
+                                    params={ffmpegParams}
+                                    onParamChanged={onParametersChanged}
+                                />
+                            </Match>
+                        </Switch>
+                        <div class="row flex-col align-items-center">
+                            <h3 class="k-form-section-title">Audio</h3>
+                        </div>
+                        <form class="k-form">
+                            <label for="targetCodec">Codec</label>
+                            <select
+                                class="k-dropdown"
+                                id="targetCodec"
+                                value={audioCodec()}
+                                oninput={(e) => setAudioCodec(e.target.value)}
+                            >
+                                <option value="copy">Copy from source</option>
+                                <For each={audioCodecList()}>
+                                    {(item, _) => (
+                                        <option value={item.shortName}>
+                                            {item.description}
+                                        </option>
+                                    )}
+                                </For>
+                            </select>
+                        </form>
+                        <div class="row flex-col align-items-center">
+                            <h3 class="k-form-section-title">
+                                Extra Arguments
+                            </h3>
+                        </div>
+                        <form
+                            class="k-form"
+                            onsubmit={(e) => e.preventDefault()}
+                        >
+                            <label for="globalopts">Global Options</label>
+                            <input
+                                type="text"
+                                name="globalopts"
+                                id="globalopts"
+                                value={globalopts()}
+                                oninput={(e) => {
+                                    ffmpegParams.useropts.global =
+                                        e.target.value;
+                                    setGlobalopts(e.target.value);
+                                }}
+                            />
+                            <label for="inputopts">Input Options</label>
+                            <input
+                                type="text"
+                                name="inputopts"
+                                id="inputopts"
+                                value={inputopts()}
+                                oninput={(e) => {
+                                    ffmpegParams.useropts.input =
+                                        e.target.value;
+                                    setInputopts(e.target.value);
+                                }}
+                            />
+                            <label for="outputopts">Output Options</label>
+                            <input
+                                type="text"
+                                name="outputopts"
+                                id="outputopts"
+                                value={outputopts()}
+                                oninput={(e) => {
+                                    ffmpegParams.useropts.output =
+                                        e.target.value;
+                                    setOutputopts(e.target.value);
+                                }}
+                            />
+                        </form>
+                    </div>
+                </div>
+                <footer class="k-page-footer row flex-col gap2">
+                    <div class="row flex-col">
+                        <label for="outputCommand">Command</label>
+                        <pre id="outputCommand" class="k-text-field col">
+                            {outputCommand()}
+                        </pre>
+                    </div>
+                    <div class="row gap2">
+                        <button class="k-button" onclick={convertAllClicked}>
+                            Convert All
+                        </button>
+                        <button
+                            class="k-button"
+                            onclick={convertSelectedClicked}
+                            disabled={selectedClip() === ""}
+                        >
+                            Convert Selected
+                        </button>
+                    </div>
+                </footer>
             </div>
         </main>
     );

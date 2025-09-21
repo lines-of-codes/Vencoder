@@ -1,3 +1,4 @@
+import { getVencoderFolder } from "@/util/path";
 import { events, os, storage } from "@neutralinojs/lib";
 import { createSignal, onMount, onCleanup, Show, Index } from "solid-js";
 
@@ -131,6 +132,14 @@ function ProgressPage() {
         setFinished(true);
     }
 
+    async function openFolder() {
+        const folder = await getVencoderFolder();
+
+        if (folder) {
+            os.open(folder);
+        }
+    }
+
     return (
         <main class="row flex-col">
             <div class="container row flex-col" style={{ flex: "1" }}>
@@ -182,20 +191,24 @@ function ProgressPage() {
                         )}
                     </Index>
                 </div>
-                <Show when={!finished()}>
-                    <footer
-                        class="p-medium row"
-                        style={{ "align-items": "end" }}
+                <footer class="p-medium row" style={{ "align-items": "end" }}>
+                    <Show
+                        when={finished()}
+                        fallback={
+                            <button
+                                class="k-button"
+                                disabled={isCancelling()}
+                                onclick={cancelBtnClicked}
+                            >
+                                Cancel
+                            </button>
+                        }
                     >
-                        <button
-                            class="k-button"
-                            disabled={isCancelling()}
-                            onclick={cancelBtnClicked}
-                        >
-                            Cancel
+                        <button class="k-button" onclick={openFolder}>
+                            Open Folder
                         </button>
-                    </footer>
-                </Show>
+                    </Show>
+                </footer>
             </div>
         </main>
     );
