@@ -33,7 +33,7 @@ import DNxHDOptions from "./components/DNxHDOptions";
 const commonCodecs = new Set(["h264", "hevc", "vp8", "vp9", "av1", "dnxhd"]);
 
 interface RunningProcessInfo {
-    process: Neutralino.os.SpawnedProcess;
+    process: Neutralino.SpawnedProcess;
     file: string;
     length: number;
 }
@@ -307,8 +307,8 @@ function App() {
             const userAnswer = await Neutralino.os.showMessageBox(
                 "File already exists",
                 `A file at ${ffmpegParams.outputFile} already exists. Would you like to overwrite it?`,
-                Neutralino.os.MessageBoxChoice.YES_NO,
-                Neutralino.os.Icon.QUESTION,
+                Neutralino.MessageBoxChoice.YES_NO,
+                Neutralino.Icon.QUESTION,
             );
 
             if (userAnswer === "NO") {

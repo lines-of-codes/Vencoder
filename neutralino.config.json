@@ -25,15 +25,16 @@
             "minWidth": 600,
             "minHeight": 400,
             "icon": "/solid-src/public/vite.svg",
-            "enableInspector": false
+            "enableInspector": true,
+            "openInspectorOnStartup": false
         }
     },
     "cli": {
         "binaryName": "vencoder",
         "resourcesPath": "/solid-src/dist/",
         "extensionsPath": "/extensions/",
-        "binaryVersion": "6.2.0",
-        "clientVersion": "6.2.0",
+        "binaryVersion": "6.3.0",
+        "clientVersion": "6.3.0",
         "frontendLibrary": {
             "patchFile": "/solid-src/index.html",
             "devUrl": "http://localhost:5173"

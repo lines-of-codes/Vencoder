@@ -1,5 +1,5 @@
 import { getVencoderFolder } from "@/util/path";
-import { events, os, storage } from "@neutralinojs/lib";
+import { events, os, storage, type SpawnedProcess } from "@neutralinojs/lib";
 import { createSignal, onMount, onCleanup, Show, Index } from "solid-js";
 
 interface TargetFile {
@@ -30,7 +30,7 @@ interface FFmpegProgressInfo {
 function ProgressPage() {
     const [windowFocused, setWindowFocused] = createSignal(true);
     const [runningProcesses, setRunningProcesses] = createSignal<
-        os.SpawnedProcess[]
+        SpawnedProcess[]
     >([]);
     const [finished, setFinished] = createSignal(false);
     const [fileInfo, setFileInfo] = createSignal<TargetFile[]>([]);

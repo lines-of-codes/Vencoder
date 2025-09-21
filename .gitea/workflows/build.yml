@@ -29,8 +29,8 @@ jobs:
             - name: Package application
               run: |
                   cd ${{ github.workspace }}
-                  wget https://staticlines.dailitation.xyz/neutralinojs-v6.2.0.zip
-                  unzip neutralinojs-v6.2.0.zip -d bin/
+                  wget https://staticlines.dailitation.xyz/neutralinojs-v6.3.0.zip
+                  unzip neutralinojs-v6.3.0.zip -d bin/
                   pnpx @neutralinojs/neu build
             - name: Upload artifacts
               uses: ChristopherHX/gitea-upload-artifact@v4
