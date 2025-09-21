@@ -59,6 +59,7 @@ function App() {
     const [inputopts, setInputopts] = createSignal("");
     const [outputopts, setOutputopts] = createSignal("");
     const [audioCodec, setAudioCodec] = createSignal("copy");
+    const [audioEncoder, setAudioEncoder] = createSignal("");
     const logs: { [id: number]: string[] } = {};
     let supportedCodecs: CodecList = { vcodecs: [], acodecs: [] };
     let ffmpegParams: FFmpegParams = {
@@ -226,6 +227,19 @@ function App() {
         ffmpegParams.encoder = encoder;
         setSelectedCodec(codecObj);
         setSelectedEncoder(encoder);
+    }
+
+    function getAudioEncoders() {
+        const codec = audioCodec();
+        const encoders = audioCodecList().find(
+            (v) => v.shortName === codec,
+        )?.encoders;
+
+        if (encoders) {
+            setAudioEncoder(encoders[0]);
+        }
+
+        return encoders;
     }
 
     function onParametersChanged(key: string, value: any) {
@@ -564,10 +578,10 @@ function App() {
                             <h3 class="k-form-section-title">Audio</h3>
                         </div>
                         <form class="k-form">
-                            <label for="targetCodec">Codec</label>
+                            <label for="audioCodec">Codec</label>
                             <select
                                 class="k-dropdown"
-                                id="targetCodec"
+                                id="audioCodec"
                                 value={audioCodec()}
                                 oninput={(e) => setAudioCodec(e.target.value)}
                             >
@@ -580,6 +594,23 @@ function App() {
                                     )}
                                 </For>
                             </select>
+                            <Show when={getAudioEncoders()}>
+                                <label for="audioEncoder">Encoder</label>
+                                <select
+                                    class="k-dropdown"
+                                    id="audioEncoder"
+                                    value={audioEncoder()}
+                                    oninput={(e) =>
+                                        setAudioEncoder(e.target.value)
+                                    }
+                                >
+                                    <For each={getAudioEncoders()}>
+                                        {(item, _) => (
+                                            <option value={item}>{item}</option>
+                                        )}
+                                    </For>
+                                </select>
+                            </Show>
                         </form>
                         <div class="row flex-col align-items-center">
                             <h3 class="k-form-section-title">
