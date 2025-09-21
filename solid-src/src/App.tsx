@@ -14,6 +14,7 @@ import {
     generateOutputCommand,
     getAvailableCodecs,
     getLengthMicroseconds,
+    getPixelFormats,
     playFile,
     videoFileExtensions,
     type CodecInfo,
@@ -60,6 +61,8 @@ function App() {
     const [outputopts, setOutputopts] = createSignal("");
     const [audioCodec, setAudioCodec] = createSignal("copy");
     const [audioEncoder, setAudioEncoder] = createSignal("");
+    const [pixelFormatList, setPixelFormatList] = createSignal([] as string[]);
+    const [pixelFormat, setPixelFormat] = createSignal("");
     const logs: { [id: number]: string[] } = {};
     let supportedCodecs: CodecList = { vcodecs: [], acodecs: [] };
     let ffmpegParams: FFmpegParams = {
@@ -139,6 +142,8 @@ function App() {
         ffmpegParams.encoder = firstCodec.encoders[0];
         setSelectedCodec(firstCodec);
         setSelectedEncoder(firstCodec.encoders[0]);
+
+        setPixelFormatList(await getPixelFormats());
     });
 
     onCleanup(() => {
@@ -231,12 +236,16 @@ function App() {
 
     function getAudioEncoders() {
         const codec = audioCodec();
-        const encoders = audioCodecList().find(
+        let encoders = audioCodecList().find(
             (v) => v.shortName === codec,
         )?.encoders;
 
         if (encoders) {
             setAudioEncoder(encoders[0]);
+        }
+
+        if (encoders instanceof Array && encoders.length === 0) {
+            encoders = undefined;
         }
 
         return encoders;
@@ -265,10 +274,18 @@ function App() {
             encoder = undefined;
         }
 
+        let acodec = audioEncoder();
+
+        if (acodec === "") {
+            acodec = audioCodec();
+        }
+
+        const pixFmt = pixelFormat();
+
         ffmpegParams = {
             vcodec: selectedCodec()?.shortName ?? "",
             encoder,
-            acodec: audioCodec(),
+            acodec,
             abitrate: ffmpegParams.abitrate,
             crf: ffmpegParams.crf,
             doNotUseAn: ffmpegParams.doNotUseAn,
@@ -283,6 +300,7 @@ function App() {
                 input: inputopts(),
                 output: outputopts(),
             },
+            pixelFormat: pixFmt === "" ? undefined : pixFmt,
         };
 
         setOutputCommand(generateOutputCommand(ffmpegParams));
@@ -542,6 +560,22 @@ function App() {
                                     </For>
                                 </select>
                             </Show>
+                            <label for="pixelFormat">Pixel Format</label>
+                            <select
+                                name="pixelFormat"
+                                id="pixelFormat"
+                                class="k-dropdown"
+                                title="This option is here for the people who knows what they're doing. Not all encoders will support every pixel format."
+                                value={pixelFormat()}
+                                oninput={(e) => setPixelFormat(e.target.value)}
+                            >
+                                <option value="">Same as source</option>
+                                <For each={pixelFormatList()}>
+                                    {(item, _) => (
+                                        <option value={item}>{item}</option>
+                                    )}
+                                </For>
+                            </select>
                         </form>
                         <Switch fallback={<div></div>}>
                             <Match

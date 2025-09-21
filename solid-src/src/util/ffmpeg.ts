@@ -74,6 +74,28 @@ export async function getAvailableCodecs(): Promise<CodecList> {
     };
 }
 
+export async function getPixelFormats(): Promise<string[]> {
+    const seperator = "-----";
+    const result = await Neutralino.os.execCommand("ffmpeg -pix_fmts");
+    const rawFormatList = result.stdOut
+        .substring(result.stdOut.indexOf(seperator) + seperator.length)
+        .split("\n");
+    let outputFormats = [];
+
+    for (let format of rawFormatList) {
+        format = format.trim();
+        const flags = format.substring(0, 5);
+
+        if (flags[1] !== "O") continue;
+
+        const parts = format.substring(6).split(/ +/);
+
+        outputFormats.push(parts[0]);
+    }
+
+    return outputFormats;
+}
+
 export function playFile(path: string) {
     Neutralino.os.execCommand(`ffplay "${path}"`);
 }
@@ -114,6 +136,7 @@ export interface FFmpegParams {
     faststart?: boolean;
     doNotUseAn?: boolean;
     speed?: number;
+    pixelFormat?: string;
     /**
      * Extra parameters defined by users
      */
@@ -156,8 +179,17 @@ export function generateOutputCommand(params: FFmpegParams) {
         globalopts += " " + params.useropts.global;
     }
 
+    if (params.pixelFormat) {
+        if (params.outputopts === undefined) {
+            params.outputopts = {};
+        }
+
+        params.outputopts = {
+            "pix_fmt": params.pixelFormat
+        };
+    }
+
     if (params.outputopts !== undefined) {
-        console.log(params.outputopts);
         for (const key of Object.keys(params.outputopts)) {
             outputopts += ` -${key} ${params.outputopts[key]}`.trimEnd();
         }
