@@ -1,0 +1,7 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=Vencoder
+Exec=/usr/bin/vencoder
+Terminal=false
