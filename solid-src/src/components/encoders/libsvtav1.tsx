@@ -1,17 +1,13 @@
 import {
-    DEFAULT_BITRATE,
     type CodecInfo,
     type FFmpegParamChangedFunc,
     type FFmpegParams,
 } from "@/util/ffmpeg";
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "@/components/BreezeIcon";
-import { createEffect, createSignal, onMount, Show } from "solid-js";
-
-const DEFAULT_CRF = 30;
+import { createEffect, createSignal, onMount } from "solid-js";
 
 function LibSvtAv1Options({
-    codec,
     params,
     onParamChanged,
 }: {

@@ -51,7 +51,7 @@ function Librav1eOptions(props: {
                     max="10"
                     value={props.params.speed ?? 5}
                     oninput={(e) =>
-                        props.onParamChanged("speed", e.target.value)
+                        props.onParamChanged("speed", parseInt(e.target.value))
                     }
                 />
                 <label for="bitrate">Bitrate</label>
@@ -62,7 +62,10 @@ function Librav1eOptions(props: {
                         id="bitrate"
                         value={props.params.vbitrate ?? DEFAULT_BITRATE}
                         oninput={(e) =>
-                            props.onParamChanged("vbitrate", e.target.value)
+                            props.onParamChanged(
+                                "vbitrate",
+                                parseInt(e.target.value),
+                            )
                         }
                     />
                     <span>Kbps</span>
