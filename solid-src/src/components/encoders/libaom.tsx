@@ -1,6 +1,7 @@
 import {
     DEFAULT_BITRATE,
     type CodecInfo,
+    type FFmpegParamChangedFunc,
     type FFmpegParams,
 } from "@/util/ffmpeg";
 import { os } from "@neutralinojs/lib";
@@ -12,7 +13,7 @@ const DEFAULT_CRF = 23;
 function LibaomOptions(props: {
     codec: CodecInfo | undefined;
     params: FFmpegParams;
-    onParamChanged: (key: string, value: any) => void;
+    onParamChanged: FFmpegParamChangedFunc;
 }) {
     const [rateControlMode, setRateControlMode] = createSignal("Constant");
 

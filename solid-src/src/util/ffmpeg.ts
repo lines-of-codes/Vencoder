@@ -144,8 +144,10 @@ export interface FFmpegParams {
     /**
      * Extra output parameters defined by Vencoder
      */
-    outputopts?: { [key: string]: string };
+    outputopts?: { [key: string]: string | undefined };
 }
+
+export type FFmpegParamChangedFunc = <K extends keyof FFmpegParams>(key: K, value: FFmpegParams[K]) => void;
 
 const NULL_LOCATION = window.NL_OS === "Windows" ? "NUL" : "/dev/null";
 
@@ -191,6 +193,8 @@ export function generateOutputCommand(params: FFmpegParams) {
 
     if (params.outputopts !== undefined) {
         for (const key of Object.keys(params.outputopts)) {
+            if (params.outputopts[key] === undefined) continue;
+
             outputopts += ` -${key} ${params.outputopts[key]}`.trimEnd();
         }
     }

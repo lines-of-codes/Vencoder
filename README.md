@@ -48,7 +48,7 @@ encoders supported by your FFmpeg install will show up.
 -   [ ] AV1
     -   [x] libaom-av1
     -   [x] librav1e (Partial support)
-    -   [ ] libsvtav1
+    -   [x] libsvtav1
     -   [ ] av1_amf
     -   [ ] av1_nvenc
     -   [ ] av1_qsv
@@ -60,7 +60,6 @@ encoders supported by your FFmpeg install will show up.
     -   [ ] h264_amf
     -   [ ] h264_nvenc
     -   [ ] h264_qsv
-    -   [ ] h264_v4l2m2m
     -   [ ] h264_vaapi
     -   [ ] h264_vulkan
 -   [ ] H.265
@@ -68,12 +67,10 @@ encoders supported by your FFmpeg install will show up.
     -   [ ] h264_amf
     -   [ ] h264_nvenc
     -   [ ] h264_qsv
-    -   [ ] h264_v4l2m2m
     -   [ ] h264_vaapi
     -   [ ] h264_vulkan
 -   [ ] VP8
     -   [ ] libvpx
-    -   [ ] vp8_v4l2m2m
     -   [ ] vp8_vaapi
 -   [ ] VP9
     -   [ ] libvpx-vp9

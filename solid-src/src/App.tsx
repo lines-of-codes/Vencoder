@@ -251,8 +251,10 @@ function App() {
         return encoders;
     }
 
-    function onParametersChanged(key: string, value: any) {
-        // @ts-ignore
+    function onParametersChanged<K extends keyof FFmpegParams>(
+        key: K,
+        value: any,
+    ) {
         ffmpegParams[key] = value;
         setOutputCommand(generateOutputCommand(ffmpegParams));
     }
@@ -264,6 +266,7 @@ function App() {
             x: 120,
             y: 120,
             injectGlobals: true,
+            processArgs: "--port=5434",
         });
     }
 
@@ -276,7 +279,7 @@ function App() {
 
         let acodec = audioEncoder();
 
-        if (acodec === "") {
+        if (acodec === undefined || acodec === "") {
             acodec = audioCodec();
         }
 
@@ -391,6 +394,7 @@ function App() {
             injectGlobals: true,
             maximizable: false,
             enableInspector: false,
+            processArgs: "--port=5433",
         });
     }
 

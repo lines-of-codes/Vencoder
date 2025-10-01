@@ -1,6 +1,7 @@
 import {
     DEFAULT_BITRATE,
     type CodecInfo,
+    type FFmpegParamChangedFunc,
     type FFmpegParams,
 } from "@/util/ffmpeg";
 import { os } from "@neutralinojs/lib";
@@ -10,7 +11,7 @@ import { onMount } from "solid-js";
 function Librav1eOptions(props: {
     codec: CodecInfo | undefined;
     params: FFmpegParams;
-    onParamChanged: (key: string, value: any) => void;
+    onParamChanged: FFmpegParamChangedFunc;
 }) {
     onMount(() => {
         props.onParamChanged("crf", undefined);

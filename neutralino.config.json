@@ -5,6 +5,7 @@
     "defaultMode": "window",
     "documentRoot": "/solid-src/dist/",
     "url": "/",
+    "port": 5432,
     "enableServer": true,
     "enableNativeAPI": true,
     "singlePageServe": true,

@@ -1,5 +1,9 @@
 import { os } from "@neutralinojs/lib";
-import { type CodecInfo, type FFmpegParams } from "../util/ffmpeg";
+import {
+    type CodecInfo,
+    type FFmpegParamChangedFunc,
+    type FFmpegParams,
+} from "../util/ffmpeg";
 import BreezeIcon from "./BreezeIcon";
 
 /**
@@ -8,7 +12,7 @@ import BreezeIcon from "./BreezeIcon";
 function DNxHDOptions(props: {
     codec: CodecInfo | undefined;
     params: FFmpegParams;
-    onParamChanged: (key: string, value: any) => void;
+    onParamChanged: FFmpegParamChangedFunc;
 }) {
     return (
         <section id="commonLossyOptions">

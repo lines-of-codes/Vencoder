@@ -1,5 +1,7 @@
 /* An attempt of imitating KDE's Kirigami UI Framework */
 
+@reference "./index.css";
+
 :root {
     --k-grid-unit: 16px;
     --k-small-spacing: 4px;
@@ -97,6 +99,7 @@ button {
     border-radius: var(--k-border-radius);
     box-shadow: var(--k-border-color) 0 1px;
     background-color: var(--k-primary-highlight);
+    padding: 2px 6px;
     font-size: inherit;
 
     &:hover {
@@ -123,6 +126,7 @@ button {
     padding: var(--k-small-spacing) calc(var(--k-medium-spacing) + 12px)
         var(--k-small-spacing) var(--k-medium-spacing);
     border: 1px solid var(--k-border-color);
+    border-radius: var(--k-border-radius);
     box-shadow: var(--k-border-color) 0 1px;
     max-width: 16em;
     font-size: inherit;
@@ -177,6 +181,7 @@ input[type="number"] {
     border-bottom: 1px solid var(--k-border-color);
     width: fit-content;
     margin-bottom: var(--k-medium-spacing);
+    @apply text-xl font-bold mt-4;
 }
 
 .k-page-footer {

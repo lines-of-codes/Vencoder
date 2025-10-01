@@ -2,34 +2,18 @@ import { createSignal, Show } from "solid-js";
 import {
     DEFAULT_BITRATE,
     type CodecInfo,
-    type FFmpegParamChangedFunc,
     type FFmpegParams,
 } from "../util/ffmpeg";
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "./BreezeIcon";
 
-const information = {
-    h264: {
-        defaultCrf: 23,
-    },
-    hevc: {
-        defaultCrf: 28,
-    },
-};
-
-/**
- * Options for H.264/H.265 codecs
- */
-function H264Options(props: {
+function VP9Options(props: {
     codec: CodecInfo | undefined;
     params: FFmpegParams;
-    onParamChanged: FFmpegParamChangedFunc;
+    onParamChanged: (key: string, value: any) => void;
 }) {
     const [twopass, setTwopass] = createSignal(false);
-    const defaultCrf =
-        props.codec?.shortName === "h264"
-            ? information.h264.defaultCrf
-            : information.hevc.defaultCrf;
+    const defaultCrf = 30;
 
     return (
         <section id="commonLossyOptions">
@@ -168,4 +152,4 @@ function H264Options(props: {
     );
 }
 
-export default H264Options;
+export default VP9Options;
