@@ -5,7 +5,7 @@ import {
 } from "@/util/ffmpeg";
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "@/components/BreezeIcon";
-import { createEffect, createSignal, onMount } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
 
 function LibSvtAv1Options({
     params,
