@@ -171,7 +171,7 @@ export function generateOutputCommand(params: FFmpegParams) {
             ? " -movflags +faststart"
             : "";
 
-    let globalopts = "-hwaccel auto -y";
+    let globalopts = `-hwaccel ${params.hwaccel ?? "auto"} -y`;
     let inputopts =
         params.useropts.input !== "" ? " " + params.useropts.input : "";
     let outputopts =
@@ -220,7 +220,7 @@ ffmpeg ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=2" : "-pass
     }
 
     return `ffmpeg ${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec}${params.crf === undefined ? "" : ` -crf ${params.crf}`
-        }${params.vbitrate === undefined ? "" : ` -b:v ${params.vbitrate}`
+        }${params.vbitrate === undefined ? "" : ` -b:v ${params.vbitrate}k`
         }${faststart}${params.preset === undefined ? "" : ` -preset ${params.preset}`
         } -c:a ${params.acodec ?? "copy"}${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`
         }${params.speed === undefined ? "" : ` -speed ${params.speed}`

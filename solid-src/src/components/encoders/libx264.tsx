@@ -2,18 +2,34 @@ import { createSignal, Show } from "solid-js";
 import {
     DEFAULT_BITRATE,
     type CodecInfo,
+    type FFmpegParamChangedFunc,
     type FFmpegParams,
-} from "../util/ffmpeg";
+} from "@/util/ffmpeg";
 import { os } from "@neutralinojs/lib";
-import BreezeIcon from "./BreezeIcon";
+import BreezeIcon from "@/components/BreezeIcon";
 
-function VP9Options(props: {
+const information = {
+    h264: {
+        defaultCrf: 23,
+    },
+    hevc: {
+        defaultCrf: 28,
+    },
+};
+
+/**
+ * Options for H.264/H.265 codecs
+ */
+function LibH26xOptions(props: {
     codec: CodecInfo | undefined;
     params: FFmpegParams;
-    onParamChanged: (key: string, value: any) => void;
+    onParamChanged: FFmpegParamChangedFunc;
 }) {
     const [twopass, setTwopass] = createSignal(false);
-    const defaultCrf = 30;
+    const defaultCrf =
+        props.codec?.shortName === "h264"
+            ? information.h264.defaultCrf
+            : information.hevc.defaultCrf;
 
     return (
         <section id="commonLossyOptions" class="k-form">
@@ -101,13 +117,12 @@ function VP9Options(props: {
                         name="bitrate"
                         id="bitrate"
                         value={props.params.vbitrate ?? DEFAULT_BITRATE}
-                        oninput={(e) => {
-                            props.params.vbitrate = parseInt(e.target.value);
+                        oninput={(e) =>
                             props.onParamChanged(
                                 "vbitrate",
                                 parseInt(e.target.value),
-                            );
-                        }}
+                            )
+                        }
                     />
                     <span> Kbps</span>
                 </div>
@@ -142,4 +157,4 @@ function VP9Options(props: {
     );
 }
 
-export default VP9Options;
+export default LibH26xOptions;

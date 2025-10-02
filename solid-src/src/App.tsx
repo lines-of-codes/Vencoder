@@ -31,7 +31,7 @@ import BreezeIcon from "./components/BreezeIcon";
 import AV1Options from "./components/AV1Options";
 import DNxHDOptions from "./components/DNxHDOptions";
 
-const commonCodecs = new Set(["h264", "hevc", "vp8", "vp9", "av1", "dnxhd"]);
+const commonCodecs = new Set(["h264", "hevc", "vp9", "av1", "dnxhd"]);
 
 interface RunningProcessInfo {
     process: Neutralino.SpawnedProcess;
@@ -212,27 +212,25 @@ function App() {
             (v) => v.shortName === newValue,
         );
 
-        if (newValue !== "h264" && newValue !== "hevc") {
-            ffmpegParams.twopass = false;
+        let encoder = newValue;
+        if (codecObj?.encoders.length !== 0) {
+            encoder = codecObj?.encoders[0] ?? "";
         }
+        setSelectedCodec(codecObj);
+        setSelectedEncoder(encoder);
+    }
 
+    createEffect(() => {
         ffmpegParams = {
-            vcodec: codecObj?.shortName ?? "",
+            vcodec: selectedCodec()?.shortName ?? "",
+            encoder: selectedEncoder(),
             useropts: {
                 global: "",
                 input: "",
                 output: "",
             },
         };
-
-        let encoder = newValue;
-        if (codecObj?.encoders.length !== 0) {
-            encoder = codecObj?.encoders[0] ?? "";
-        }
-        ffmpegParams.encoder = encoder;
-        setSelectedCodec(codecObj);
-        setSelectedEncoder(encoder);
-    }
+    });
 
     function getAudioEncoders() {
         const codec = audioCodec();
@@ -581,7 +579,16 @@ function App() {
                                 </For>
                             </select>
                         </form>
-                        <Switch fallback={<div></div>}>
+                        <div class="row flex-col align-items-center">
+                            <h3 class="k-form-section-title">
+                                Encoder Options
+                            </h3>
+                        </div>
+                        <Switch
+                            fallback={
+                                <div class="text-center mt-4">No options.</div>
+                            }
+                        >
                             <Match
                                 when={
                                     selectedCodec()?.shortName === "h264" ||
@@ -590,6 +597,7 @@ function App() {
                             >
                                 <H264Options
                                     codec={selectedCodec()}
+                                    encoder={selectedEncoder()}
                                     params={ffmpegParams}
                                     onParamChanged={onParametersChanged}
                                 />

@@ -15,43 +15,36 @@ function DNxHDOptions(props: {
     onParamChanged: FFmpegParamChangedFunc;
 }) {
     return (
-        <section id="commonLossyOptions">
-            <div class="row flex-col align-items-center">
-                <h3 class="k-form-section-title">Encoder Options</h3>
-            </div>
-            <div class="k-form">
-                <label>Help</label>
-                <div>
-                    <button
-                        class="icon-button"
-                        onclick={() =>
-                            os.open("https://askubuntu.com/a/907515")
-                        }
-                        title="DNxHD is a picky encoder."
-                    >
-                        <BreezeIcon icon="help-about" alt="Help" />
-                    </button>
-                </div>
-                <label for="profile">Profile</label>
-                <select
-                    class="k-dropdown"
-                    name="profile"
-                    id="profile"
-                    value={props.params.outputopts?.profile ?? "dnxhd"}
-                    oninput={(e) => {
-                        props.onParamChanged("outputopts", {
-                            profile: e.target.value,
-                        });
-                    }}
+        <section id="commonLossyOptions" class="k-form">
+            <label>Help</label>
+            <div>
+                <button
+                    class="icon-button"
+                    onclick={() => os.open("https://askubuntu.com/a/907515")}
+                    title="DNxHD is a picky encoder."
                 >
-                    <option value="dnxhd">DNxHD</option>
-                    <option value="dnxhr_444">DNxHR 444</option>
-                    <option value="dnxhr_hqx">DNxHR HQX</option>
-                    <option value="dnxhr_hq">DNxHR HQ</option>
-                    <option value="dnxhr_sq">DNxHR SQ</option>
-                    <option value="dnxhr_lb">DNxHR LB</option>
-                </select>
+                    <BreezeIcon icon="help-about" alt="Help" />
+                </button>
             </div>
+            <label for="profile">Profile</label>
+            <select
+                class="k-dropdown"
+                name="profile"
+                id="profile"
+                value={props.params.outputopts?.profile ?? "dnxhd"}
+                oninput={(e) => {
+                    props.onParamChanged("outputopts", {
+                        profile: e.target.value,
+                    });
+                }}
+            >
+                <option value="dnxhd">DNxHD</option>
+                <option value="dnxhr_444">DNxHR 444</option>
+                <option value="dnxhr_hqx">DNxHR HQX</option>
+                <option value="dnxhr_hq">DNxHR HQ</option>
+                <option value="dnxhr_sq">DNxHR SQ</option>
+                <option value="dnxhr_lb">DNxHR LB</option>
+            </select>
         </section>
     );
 }

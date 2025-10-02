@@ -46,79 +46,71 @@ function LibaomOptions(props: {
     });
 
     return (
-        <section id="encoderOptions">
-            <div class="row flex-col align-items-center">
-                <h3 class="k-form-section-title">Encoder Options</h3>
-            </div>
-            <div class="k-form">
-                <label>Help</label>
-                <div>
-                    <button
-                        class="icon-button"
-                        onclick={() =>
-                            os.open(
-                                "https://trac.ffmpeg.org/wiki/Encode/AV1#libaom",
-                            )
-                        }
-                        title="Click to view the documentation for this encoder."
-                    >
-                        <BreezeIcon icon="help-about" alt="Help" />
-                    </button>
-                </div>
-                <label for="rateControlMode">Rate-control modes</label>
-                <select
-                    class="k-dropdown"
-                    onchange={(e) => setRateControlMode(e.target.value)}
-                    name="rateControlMode"
-                    id="rateControlMode"
-                >
-                    <option value="Constant">Constant Quality</option>
-                    <option value="Constrained">Constrained Quality</option>
-                    <option value="2PassABR">2-Pass Average Bitrate</option>
-                    <option value="ABR">1-Pass Average Bitrate</option>
-                </select>
-                <Show
-                    when={
-                        rateControlMode() === "Constant" ||
-                        rateControlMode() === "Constrained"
+        <section id="encoderOptions" class="k-form">
+            <label>Help</label>
+            <div>
+                <button
+                    class="icon-button"
+                    onclick={() =>
+                        os.open(
+                            "https://trac.ffmpeg.org/wiki/Encode/AV1#libaom",
+                        )
                     }
+                    title="Click to view the documentation for this encoder."
                 >
-                    <label for="crf">CRF</label>
+                    <BreezeIcon icon="help-about" alt="Help" />
+                </button>
+            </div>
+            <label for="rateControlMode">Rate-control modes</label>
+            <select
+                class="k-dropdown"
+                onchange={(e) => setRateControlMode(e.target.value)}
+                name="rateControlMode"
+                id="rateControlMode"
+            >
+                <option value="Constant">Constant Quality</option>
+                <option value="Constrained">Constrained Quality</option>
+                <option value="2PassABR">2-Pass Average Bitrate</option>
+                <option value="ABR">1-Pass Average Bitrate</option>
+            </select>
+            <Show
+                when={
+                    rateControlMode() === "Constant" ||
+                    rateControlMode() === "Constrained"
+                }
+            >
+                <label for="crf">CRF</label>
+                <input
+                    type="number"
+                    name="crf"
+                    id="crf"
+                    min="1"
+                    max="63"
+                    value={props.params.crf ?? DEFAULT_CRF}
+                    oninput={(e) => {
+                        props.onParamChanged("crf", parseInt(e.target.value));
+                    }}
+                />
+            </Show>
+            <Show when={rateControlMode() !== "Constant"}>
+                <label for="bitrate">Bitrate</label>
+                <div class="row gap2 align-items-center">
                     <input
                         type="number"
-                        name="crf"
-                        id="crf"
-                        min="1"
-                        max="63"
-                        value={props.params.crf ?? DEFAULT_CRF}
+                        name="bitrate"
+                        id="bitrate"
+                        aria-label="Kbps"
+                        value={props.params.vbitrate ?? DEFAULT_BITRATE}
                         oninput={(e) => {
                             props.onParamChanged(
-                                "crf",
+                                "vbitrate",
                                 parseInt(e.target.value),
                             );
                         }}
                     />
-                </Show>
-                <Show when={rateControlMode() !== "Constant"}>
-                    <label for="bitrate">Bitrate</label>
-                    <div class="row gap2 align-items-center">
-                        <input
-                            type="number"
-                            name="bitrate"
-                            id="bitrate"
-                            aria-label="Kbps"
-                            value={props.params.vbitrate ?? DEFAULT_BITRATE}
-                            oninput={(e) => {
-                                props.onParamChanged(
-                                    "vbitrate",
-                                    parseInt(e.target.value),
-                                );
-                            }}
-                        />
-                        <span>Kbps</span>
-                    </div>
-                </Show>
-            </div>
+                    <span>Kbps</span>
+                </div>
+            </Show>
         </section>
     );
 }

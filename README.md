@@ -59,19 +59,16 @@ encoders supported by your FFmpeg install will show up.
     -   [x] libx264rgb (Untested, but _should_ work)
     -   [ ] h264_amf
     -   [ ] h264_nvenc
-    -   [ ] h264_qsv
+    -   [x] h264_qsv
     -   [ ] h264_vaapi
     -   [ ] h264_vulkan
 -   [ ] H.265
     -   [x] libx265
-    -   [ ] h264_amf
-    -   [ ] h264_nvenc
-    -   [ ] h264_qsv
-    -   [ ] h264_vaapi
-    -   [ ] h264_vulkan
--   [ ] VP8
-    -   [ ] libvpx
-    -   [ ] vp8_vaapi
+    -   [ ] h265_amf
+    -   [ ] h265_nvenc
+    -   [x] h265_qsv
+    -   [ ] h265_vaapi
+    -   [ ] h265_vulkan
 -   [ ] VP9
     -   [ ] libvpx-vp9
     -   [ ] vp9_vaapi

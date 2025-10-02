@@ -14,7 +14,6 @@ function Librav1eOptions(props: {
     onParamChanged: FFmpegParamChangedFunc;
 }) {
     onMount(() => {
-        props.onParamChanged("crf", undefined);
         props.onParamChanged(
             "vbitrate",
             props.params.vbitrate ?? DEFAULT_BITRATE,
@@ -23,53 +22,48 @@ function Librav1eOptions(props: {
     });
 
     return (
-        <section id="encoderOptions">
-            <div class="row flex-col align-items-center">
-                <h3 class="k-form-section-title">Encoder Options</h3>
+        <section id="encoderOptions" class="k-form">
+            <label>Help</label>
+            <div>
+                <button
+                    class="icon-button"
+                    onclick={() =>
+                        os.open(
+                            "https://www.ffmpeg.org/ffmpeg-all.html#librav1e",
+                        )
+                    }
+                    title="Click to view the documentation for this encoder."
+                >
+                    <BreezeIcon icon="help-about" alt="Help" />
+                </button>
             </div>
-            <div class="k-form">
-                <label>Help</label>
-                <div>
-                    <button
-                        class="icon-button"
-                        onclick={() =>
-                            os.open(
-                                "https://www.ffmpeg.org/ffmpeg-all.html#librav1e",
-                            )
-                        }
-                        title="Click to view the documentation for this encoder."
-                    >
-                        <BreezeIcon icon="help-about" alt="Help" />
-                    </button>
-                </div>
-                <label>Speed</label>
+            <label>Speed</label>
+            <input
+                type="number"
+                name="speed"
+                id="speed"
+                min="0"
+                max="10"
+                value={props.params.speed ?? 5}
+                oninput={(e) =>
+                    props.onParamChanged("speed", parseInt(e.target.value))
+                }
+            />
+            <label for="bitrate">Bitrate</label>
+            <div class="row gap2 align-items-center">
                 <input
                     type="number"
-                    name="speed"
-                    id="speed"
-                    min="0"
-                    max="10"
-                    value={props.params.speed ?? 5}
+                    name="bitrate"
+                    id="bitrate"
+                    value={props.params.vbitrate ?? DEFAULT_BITRATE}
                     oninput={(e) =>
-                        props.onParamChanged("speed", parseInt(e.target.value))
+                        props.onParamChanged(
+                            "vbitrate",
+                            parseInt(e.target.value),
+                        )
                     }
                 />
-                <label for="bitrate">Bitrate</label>
-                <div class="row gap2 align-items-center">
-                    <input
-                        type="number"
-                        name="bitrate"
-                        id="bitrate"
-                        value={props.params.vbitrate ?? DEFAULT_BITRATE}
-                        oninput={(e) =>
-                            props.onParamChanged(
-                                "vbitrate",
-                                parseInt(e.target.value),
-                            )
-                        }
-                    />
-                    <span>Kbps</span>
-                </div>
+                <span>Kbps</span>
             </div>
         </section>
     );
