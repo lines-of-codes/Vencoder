@@ -23,9 +23,7 @@ import {
 } from "./util/ffmpeg";
 import Neutralino from "@neutralinojs/lib";
 import H264Options from "./components/H264Options";
-import { openFile } from "./util/oshelper";
-import { getTemporaryFilePath, getVencoderFolder } from "./util/path";
-import { generateRandomString } from "./util/string";
+import { getVencoderFolder } from "./util/path";
 import "./css/icons.css";
 import BreezeIcon from "./components/BreezeIcon";
 import AV1Options from "./components/AV1Options";
@@ -33,8 +31,8 @@ import DNxHDOptions from "./components/DNxHDOptions";
 
 const commonCodecs = new Set(["h264", "hevc", "vp9", "av1", "dnxhd"]);
 
-interface RunningProcessInfo {
-    process: Neutralino.SpawnedProcess;
+interface FileQueueItem {
+    command: string;
     file: string;
     length: number;
 }
@@ -52,9 +50,6 @@ function App() {
     const [showCommonCodecs, setShowCommonCodecs] = createSignal(true);
     const [selectedCodec, setSelectedCodec] = createSignal<CodecInfo>();
     const [selectedEncoder, setSelectedEncoder] = createSignal("");
-    const [runningProcesses, setRunningProcesses] = createSignal<
-        RunningProcessInfo[]
-    >([]);
     const [customFileExt, setCustomFileExt] = createSignal("");
     const [globalopts, setGlobalopts] = createSignal("");
     const [inputopts, setInputopts] = createSignal("");
@@ -63,7 +58,6 @@ function App() {
     const [audioEncoder, setAudioEncoder] = createSignal("");
     const [pixelFormatList, setPixelFormatList] = createSignal([] as string[]);
     const [pixelFormat, setPixelFormat] = createSignal("");
-    const logs: { [id: number]: string[] } = {};
     let supportedCodecs: CodecList = { vcodecs: [], acodecs: [] };
     let ffmpegParams: FFmpegParams = {
         vcodec: "",
@@ -73,9 +67,6 @@ function App() {
             output: "",
         },
     };
-    let successfulCount = 0;
-    let unsuccessfulCount = 0;
-    let totalCount = 0;
 
     function windowIsFocused() {
         setWindowFocused(true);
@@ -85,52 +76,9 @@ function App() {
         setWindowFocused(false);
     }
 
-    function handleSpawnedProcessEvents(evt: CustomEvent) {
-        switch (evt.detail.action) {
-            case "stdErr":
-                logs[evt.detail.id].push(evt.detail.data);
-                break;
-            case "exit":
-                if (evt.detail.data === 0) {
-                    successfulCount += 1;
-                } else {
-                    unsuccessfulCount += 1;
-
-                    // If the exit code isn't 255 (the exit code of the program exiting because of cancellation)
-                    if (evt.detail.data !== 255) {
-                        Neutralino.os.showNotification(
-                            "File Encoding Failed",
-                            `Encoding for file "${runningProcesses()?.find((v) => v.process.id == evt.detail.id)?.file}" failed. Exit code ${evt.detail.data}.`,
-                        );
-
-                        const tempFilename = `${getTemporaryFilePath()}/vencoder-ffmpeg-${generateRandomString(8)}.log`;
-                        Neutralino.filesystem.writeFile(
-                            tempFilename,
-                            logs[evt.detail.id].join("\n"),
-                        );
-                        openFile(tempFilename);
-                    }
-                }
-
-                if (successfulCount + unsuccessfulCount === totalCount) {
-                    Neutralino.os.showNotification(
-                        "File(s) encoded.",
-                        `${successfulCount} files encoded successfully. ${unsuccessfulCount} failed or cancelled.`,
-                    );
-                    successfulCount = 0;
-                    unsuccessfulCount = 0;
-                    totalCount = 0;
-                }
-
-                console.log(`FFmpeg exited with code: ${evt.detail.data}`);
-                break;
-        }
-    }
-
     onMount(async () => {
         events.on("windowFocus", windowIsFocused);
         events.on("windowBlur", windowUnfocused);
-        events.on("spawnedProcess", handleSpawnedProcessEvents);
 
         supportedCodecs = await getAvailableCodecs();
         filterDisplayedCodecs();
@@ -149,7 +97,6 @@ function App() {
     onCleanup(() => {
         events.off("windowFocus", windowIsFocused);
         events.off("windowBlur", windowUnfocused);
-        events.off("spawnedProcess", handleSpawnedProcessEvents);
     });
 
     function removeBtnClicked() {
@@ -309,7 +256,7 @@ function App() {
 
     async function convertClip(
         clip: string,
-    ): Promise<RunningProcessInfo | undefined> {
+    ): Promise<FileQueueItem | undefined> {
         ffmpegParams.inputFile = clip;
 
         const fileName = (await Neutralino.filesystem.getPathParts(clip)).stem;
@@ -352,9 +299,7 @@ function App() {
         const length = await getLengthMicroseconds(clip);
 
         return {
-            process: await Neutralino.os.spawnProcess(
-                generateOutputCommand(ffmpegParams),
-            ),
+            command: generateOutputCommand(ffmpegParams),
             file: clip,
             length,
         };
@@ -363,21 +308,21 @@ function App() {
     async function convertAllClicked() {
         const list = fileList();
 
-        totalCount = list.length;
+        const queue: FileQueueItem[] = [];
 
-        const processes = (await Promise.all(list.map(convertClip))).filter(
-            (v) => v !== undefined,
-        );
+        for (const file of list) {
+            const info = await convertClip(file);
 
-        setRunningProcesses(processes);
-
-        processes.forEach((v) => (logs[v.process.id] = []));
+            if (info !== undefined) {
+                queue.push(info);
+            }
+        }
 
         await Neutralino.storage.setData(
             "filesBeingProcessed",
             JSON.stringify(
-                processes.map((v) => ({
-                    id: v.process.id,
+                queue.map((v) => ({
+                    com: v.command,
                     in: v.file,
                     len: v.length,
                 })),
@@ -391,7 +336,6 @@ function App() {
             y: 120,
             injectGlobals: true,
             maximizable: false,
-            enableInspector: false,
             processArgs: "--port=5433",
         });
     }
@@ -405,17 +349,11 @@ function App() {
 
         console.log(result);
 
-        totalCount = 1;
-
-        setRunningProcesses([result]);
-
-        logs[result.process.id] = [];
-
         await Neutralino.storage.setData(
             "filesBeingProcessed",
             JSON.stringify([
                 {
-                    id: result.process.id,
+                    com: result.command,
                     in: result.file,
                     len: result.length,
                 },

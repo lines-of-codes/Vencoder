@@ -1,9 +1,11 @@
-import { getVencoderFolder } from "@/util/path";
+import { openFile } from "@/util/oshelper";
+import { getTemporaryFilePath, getVencoderFolder } from "@/util/path";
+import { generateRandomString } from "@/util/string";
 import { events, os, storage, type SpawnedProcess } from "@neutralinojs/lib";
 import { createSignal, onMount, onCleanup, Show, Index } from "solid-js";
 
 interface TargetFile {
-    id: string;
+    com: string;
     in: string;
     len: number;
 }
@@ -32,13 +34,19 @@ function ProgressPage() {
     const [runningProcesses, setRunningProcesses] = createSignal<
         SpawnedProcess[]
     >([]);
+    const [queueLength, setQueueLength] = createSignal(0);
     const [finished, setFinished] = createSignal(false);
-    const [fileInfo, setFileInfo] = createSignal<TargetFile[]>([]);
     const progressObject: {
         [key: string]: ProgressInfo;
     } = {};
     const [progressList, setProgressList] = createSignal<ProgressInfo[]>([]);
     const [isCancelling, setIsCancelling] = createSignal(false);
+    const filesBeingProcessed: Record<number, TargetFile> = {};
+    const logs: { [id: number]: string[] } = {};
+    let fileQueue: TargetFile[] = [];
+    let successfulCount = 0;
+    let unsuccessfulCount = 0;
+    let totalCount = 0;
 
     function windowIsFocused() {
         setWindowFocused(false);
@@ -46,6 +54,26 @@ function ProgressPage() {
 
     function windowUnfocused() {
         setWindowFocused(true);
+    }
+
+    async function processFiles(files: TargetFile[]) {
+        const processes = [];
+
+        for (const file of files) {
+            const proc = await os.spawnProcess(file.com);
+
+            logs[proc.id] = [];
+            processes.push(proc);
+
+            progressObject[proc.id] = {
+                filename: file.in,
+                percentage: 0,
+            };
+
+            filesBeingProcessed[proc.id] = file;
+        }
+
+        setRunningProcesses(processes);
     }
 
     function handleSpawnedProcessEvents(evt: CustomEvent) {
@@ -56,14 +84,12 @@ function ProgressPage() {
                         .split("\n")
                         .map((v) => v.split("=")),
                 );
-                const file = fileInfo().find((v) => v.id === evt.detail.id);
+                const file = filesBeingProcessed[evt.detail.id];
 
                 if (file === undefined) return;
 
-                progressObject[evt.detail.id] = {
-                    filename: file.in,
-                    percentage: (parseInt(info.out_time_us) / file.len) * 100,
-                };
+                progressObject[evt.detail.id].percentage =
+                    (parseInt(info.out_time_us) / file.len) * 100;
 
                 if (Number.isNaN(progressObject[evt.detail.id].percentage)) {
                     progressObject[evt.detail.id].percentage = 0;
@@ -72,17 +98,55 @@ function ProgressPage() {
                 setProgressList(Object.values(progressObject));
                 break;
             case "stdErr":
+                logs[evt.detail.id].push(evt.detail.data);
                 break;
             case "exit":
                 console.log(`FFmpeg exited with code: ${evt.detail.data}`);
 
-                os.getSpawnedProcesses().then((processes) => {
-                    if (processes.length === 0) {
-                        setFinished(true);
-                    }
+                if (evt.detail.data === 0) {
+                    progressObject[evt.detail.id].percentage = 100;
+                    setProgressList(Object.values(progressObject));
+                    successfulCount += 1;
+                } else {
+                    unsuccessfulCount += 1;
 
-                    setRunningProcesses(processes);
-                });
+                    // If the exit code isn't 255 (the exit code of the program exiting because of cancellation)
+                    if (evt.detail.data !== 255) {
+                        Neutralino.os.showNotification(
+                            "File Encoding Failed",
+                            `Encoding for file "${filesBeingProcessed[evt.detail.id].in}" failed. Exit code ${evt.detail.data}.`,
+                        );
+
+                        const tempFilename = `${getTemporaryFilePath()}/vencoder-ffmpeg-${generateRandomString(8)}.log`;
+                        Neutralino.filesystem.writeFile(
+                            tempFilename,
+                            logs[evt.detail.id].join("\n"),
+                        );
+                        openFile(tempFilename);
+                    }
+                }
+
+                if (successfulCount + unsuccessfulCount === totalCount) {
+                    os.showNotification(
+                        "File(s) encoded.",
+                        `${successfulCount} files encoded successfully. ${unsuccessfulCount} failed or cancelled.`,
+                    );
+                    successfulCount = 0;
+                    unsuccessfulCount = 0;
+                    totalCount = 0;
+                }
+
+                if (finished()) return;
+
+                const nextFile = fileQueue.pop();
+
+                if (nextFile === undefined) {
+                    setFinished(true);
+                    return;
+                }
+
+                processFiles([nextFile]);
+                setQueueLength(fileQueue.length);
                 break;
         }
     }
@@ -92,20 +156,16 @@ function ProgressPage() {
         events.on("windowBlur", windowUnfocused);
         events.on("spawnedProcess", handleSpawnedProcessEvents);
 
-        const processes = await os.getSpawnedProcesses();
-        setRunningProcesses(processes);
-
         const storedFileInfo: TargetFile[] = JSON.parse(
             await storage.getData("filesBeingProcessed"),
         );
-        setFileInfo(storedFileInfo);
+        totalCount = storedFileInfo.length;
 
-        for (let i = 0; i < processes.length; i++) {
-            progressObject[processes[i].id] = {
-                filename: storedFileInfo[i].in,
-                percentage: 0,
-            };
-        }
+        const file = storedFileInfo.pop()!;
+
+        processFiles([file]);
+        fileQueue = storedFileInfo;
+        setQueueLength(fileQueue.length);
 
         setProgressList(Object.values(progressObject));
     });
@@ -190,6 +250,7 @@ function ProgressPage() {
                             </div>
                         )}
                     </Index>
+                    <div>{queueLength()} file(s) queued.</div>
                 </div>
                 <footer class="p-medium row" style={{ "align-items": "end" }}>
                     <Show

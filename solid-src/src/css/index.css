@@ -104,3 +104,7 @@ h2 {
     overflow-y: auto;
     max-height: 90vh;
 }
+
+progress {
+    accent-color: var(--system-accent-color);
+}
