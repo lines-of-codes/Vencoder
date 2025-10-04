@@ -2,7 +2,7 @@ import { openFile } from "@/util/oshelper";
 import { getTemporaryFilePath, getVencoderFolder } from "@/util/path";
 import { generateRandomString } from "@/util/string";
 import { events, os, storage, type SpawnedProcess } from "@neutralinojs/lib";
-import { createSignal, onMount, onCleanup, Show, Index } from "solid-js";
+import { createSignal, onMount, onCleanup, Show } from "solid-js";
 
 interface TargetFile {
     com: string;
@@ -217,15 +217,15 @@ function ProgressPage() {
                     <Show when={finished()}>
                         Processes finished. You can close this window.
                     </Show>
-                    <Index each={progressList()}>
-                        {(item, _) => (
+                    {progressList().map((item) => {
+                        return (
                             <div
                                 class="row flex-col"
                                 style={{
                                     "padding-bottom": "var(--k-grid-unit)",
                                 }}
                             >
-                                <label>{item().filename}</label>
+                                <label>{item.filename}</label>
                                 <div
                                     class="grid"
                                     style={{
@@ -235,21 +235,21 @@ function ProgressPage() {
                                     <div class="row justify-content-center align-items-center">
                                         <progress
                                             class="col"
-                                            value={item().percentage}
+                                            value={item.percentage}
                                             max="100"
                                         />
                                     </div>
                                     <div class="row justify-content-center align-items-center">
                                         {Math.min(
-                                            Math.round(item().percentage),
+                                            Math.round(item.percentage),
                                             100,
                                         )}
                                         %
                                     </div>
                                 </div>
                             </div>
-                        )}
-                    </Index>
+                        );
+                    })}
                     <div>{queueLength()} file(s) queued.</div>
                 </div>
                 <footer class="p-medium row" style={{ "align-items": "end" }}>
