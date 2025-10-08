@@ -7,7 +7,7 @@ Uses Neutralino.js and Solid.js.
 This app _tries_ to imitate KDE's Kirigami UI framework, and also makes use of
 Breeze icons (Located in `./solid-src/public/breeze[-dark]`)
 
-Vencoder is tested with FFmpeg 7.1.1, should be compatible with older versions
+Vencoder is tested with FFmpeg 8.0, should be compatible with older versions
 but is not guaranteed.
 
 ## Running
@@ -45,7 +45,7 @@ considered common depends solely on the needs of the program's users.
 Note that, not all of these encoders will show up in the program. Only the
 encoders supported by your FFmpeg install will show up.
 
--   [ ] AV1
+-   [x] AV1
     -   [x] libaom-av1
     -   [x] librav1e (Partial support)
     -   [x] libsvtav1
@@ -54,7 +54,7 @@ encoders supported by your FFmpeg install will show up.
     -   [ ] av1_qsv
     -   [ ] av1_vaapi
 -   [x] DNxHD (Does not provide options to deal with its pickiness yet)
--   [ ] H.264
+-   [x] H.264
     -   [x] libx264
     -   [x] libx264rgb (Untested, but _should_ work)
     -   [ ] h264_amf
@@ -62,27 +62,15 @@ encoders supported by your FFmpeg install will show up.
     -   [x] h264_qsv
     -   [ ] h264_vaapi
     -   [ ] h264_vulkan
--   [ ] H.265
+-   [x] H.265
     -   [x] libx265
     -   [ ] h265_amf
     -   [ ] h265_nvenc
     -   [x] h265_qsv
     -   [ ] h265_vaapi
     -   [ ] h265_vulkan
--   [ ] VP9
+-   [x] VP9
     -   [ ] libvpx-vp9
     -   [ ] vp9_vaapi
     -   [x] vp9_qsv (Really Basic)
 
-## Gitea Actions
-
-If you saw this line:
-
-```
-wget https://staticlines.dailitation.xyz/neutralinojs-v6.2.0.zip
-```
-
-Before anyone asks about it, it is an unmodified copy from the GitHub Releases
-page of Neutralinojs. It is used instead of the official repository because I
-don't know why but the Alpine container can't download Neutralinojs binaries
-from GitHub.
