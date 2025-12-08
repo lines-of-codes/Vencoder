@@ -1,8 +1,9 @@
 import { openFile } from "@/util/oshelper";
 import { getTemporaryFilePath, getVencoderFolder } from "@/util/path";
-import { generateRandomString } from "@/util/string";
+import { durationString, generateRandomString } from "@/util/string";
 import { events, os, storage, type SpawnedProcess } from "@neutralinojs/lib";
 import { createSignal, onMount, onCleanup, Show } from "solid-js";
+import { Temporal } from "temporal-polyfill";
 
 interface TargetFile {
     com: string;
@@ -41,12 +42,14 @@ function ProgressPage() {
     } = {};
     const [progressList, setProgressList] = createSignal<ProgressInfo[]>([]);
     const [isCancelling, setIsCancelling] = createSignal(false);
+    const [timeUsed, setTimeUsed] = createSignal<Temporal.Duration>();
     const filesBeingProcessed: Record<number, TargetFile> = {};
     const logs: { [id: number]: string[] } = {};
     let fileQueue: TargetFile[] = [];
     let successfulCount = 0;
     let unsuccessfulCount = 0;
     let totalCount = 0;
+    let startTime = Temporal.Now.instant();
 
     function windowIsFocused() {
         setWindowFocused(false);
@@ -127,6 +130,7 @@ function ProgressPage() {
                 }
 
                 if (successfulCount + unsuccessfulCount === totalCount) {
+                    setTimeUsed(Temporal.Now.instant().since(startTime));
                     os.showNotification(
                         "File(s) encoded.",
                         `${successfulCount} files encoded successfully. ${unsuccessfulCount} failed or cancelled.`,
@@ -251,6 +255,9 @@ function ProgressPage() {
                         );
                     })}
                     <div>{queueLength()} file(s) queued.</div>
+                    <Show when={timeUsed() !== undefined}>
+                        <div>Consumed {durationString(timeUsed()!)}</div>
+                    </Show>
                 </div>
                 <footer class="p-medium row" style={{ "align-items": "end" }}>
                     <Show

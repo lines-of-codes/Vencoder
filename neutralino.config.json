@@ -39,8 +39,8 @@
         "binaryName": "vencoder",
         "resourcesPath": "/solid-src/dist/",
         "extensionsPath": "/extensions/",
-        "binaryVersion": "6.3.0",
-        "clientVersion": "6.3.0",
+        "binaryVersion": "6.4.0",
+        "clientVersion": "6.4.0",
         "frontendLibrary": {
             "patchFile": "/solid-src/index.html",
             "devUrl": "http://localhost:5173"
