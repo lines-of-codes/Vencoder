@@ -28,6 +28,7 @@ import "./css/icons.css";
 import BreezeIcon from "./components/BreezeIcon";
 import AV1Options from "./components/AV1Options";
 import DNxHDOptions from "./components/DNxHDOptions";
+import HelpButton from "./components/HelpButton";
 
 const commonCodecs = new Set(["h264", "hevc", "vp9", "av1", "dnxhd"]);
 
@@ -58,6 +59,7 @@ function App() {
     const [audioEncoder, setAudioEncoder] = createSignal("");
     const [pixelFormatList, setPixelFormatList] = createSignal([] as string[]);
     const [pixelFormat, setPixelFormat] = createSignal("");
+    const [fastStart, setFastStart] = createSignal(false);
     let supportedCodecs: CodecList = { vcodecs: [], acodecs: [] };
     let ffmpegParams: FFmpegParams = {
         vcodec: "",
@@ -66,6 +68,7 @@ function App() {
             input: "",
             output: "",
         },
+        extraopts: {},
     };
 
     function windowIsFocused() {
@@ -176,6 +179,7 @@ function App() {
                 input: "",
                 output: "",
             },
+            extraopts: {},
         };
     });
 
@@ -237,7 +241,7 @@ function App() {
             abitrate: ffmpegParams.abitrate,
             crf: ffmpegParams.crf,
             doNotUseAn: ffmpegParams.doNotUseAn,
-            faststart: ffmpegParams.faststart,
+            faststart: fastStart(),
             hwaccel: ffmpegParams.hwaccel,
             inputFile: undefined,
             preset: ffmpegParams.preset,
@@ -249,6 +253,8 @@ function App() {
                 output: outputopts(),
             },
             pixelFormat: pixFmt === "" ? undefined : pixFmt,
+            extraopts: ffmpegParams.extraopts,
+            customExt: customFileExt(),
         };
 
         setOutputCommand(generateOutputCommand(ffmpegParams));
@@ -367,7 +373,7 @@ function App() {
             y: 120,
             injectGlobals: true,
             maximizable: false,
-            enableInspector: false,
+            processArgs: "--port=5433",
         });
     }
 
@@ -516,6 +522,34 @@ function App() {
                                     )}
                                 </For>
                             </select>
+                            <Show
+                                when={
+                                    customFileExt() === "mp4" ||
+                                    (customFileExt() === "" &&
+                                        videoFileExtensions[
+                                            selectedCodec()?.shortName ?? ""
+                                        ] === "mp4")
+                                }
+                            >
+                                <div></div>
+                                <div class="checkbox-container">
+                                    <input
+                                        type="checkbox"
+                                        checked={fastStart()}
+                                        onInput={(e) => {
+                                            setFastStart(e.target.checked);
+                                        }}
+                                        id="fastStartCheck"
+                                    />
+                                    <label for="fastStartCheck">
+                                        Enable Fast Start
+                                    </label>
+                                    <HelpButton
+                                        title="This will move some information to the beginning of your file and allow the video to begin playing before it is completely downloaded by the viewer, recommended for web videos. Click for more information."
+                                        url="https://trac.ffmpeg.org/wiki/Encode/H.264#faststartforwebvideo"
+                                    />
+                                </div>
+                            </Show>
                         </form>
                         <div class="row flex-col align-items-center">
                             <h3 class="k-form-section-title">

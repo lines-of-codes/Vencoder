@@ -8,9 +8,9 @@ export interface CodecInfo {
 }
 
 export type CodecList = {
-    vcodecs: CodecInfo[],
-    acodecs: CodecInfo[]
-}
+    vcodecs: CodecInfo[];
+    acodecs: CodecInfo[];
+};
 
 export async function getAvailableCodecs(): Promise<CodecList> {
     const seperator = "-------";
@@ -70,7 +70,7 @@ export async function getAvailableCodecs(): Promise<CodecList> {
 
     return {
         vcodecs,
-        acodecs
+        acodecs,
     };
 }
 
@@ -109,10 +109,16 @@ export const videoFileExtensions: { [key: string]: string } = {
     vp9: "mkv",
 };
 
-export interface ExtraFFmpegArguments {
+export interface UserFFmpegArguments {
     global: string;
     input: string;
     output: string;
+}
+
+export interface ProgramFFmpegArguments {
+    global?: { [key: string]: string | undefined };
+    input?: { [key: string]: string | undefined };
+    output?: { [key: string]: string | undefined };
 }
 
 export interface FFmpegParams {
@@ -137,17 +143,26 @@ export interface FFmpegParams {
     doNotUseAn?: boolean;
     speed?: number;
     pixelFormat?: string;
+    i_qfactor?: number;
+    b_qfactor?: number;
+    /**
+     * Custom file extension
+     */
+    customExt?: string;
     /**
      * Extra parameters defined by users
      */
-    useropts: ExtraFFmpegArguments;
+    useropts: UserFFmpegArguments;
     /**
      * Extra output parameters defined by Vencoder
      */
-    outputopts?: { [key: string]: string | undefined };
+    extraopts: ProgramFFmpegArguments;
 }
 
-export type FFmpegParamChangedFunc = <K extends keyof FFmpegParams>(key: K, value: FFmpegParams[K]) => void;
+export type FFmpegParamChangedFunc = <K extends keyof FFmpegParams>(
+    key: K,
+    value: FFmpegParams[K],
+) => void;
 
 const NULL_LOCATION = window.NL_OS === "Windows" ? "NUL" : "/dev/null";
 
@@ -157,17 +172,23 @@ const NULL_LOCATION = window.NL_OS === "Windows" ? "NUL" : "/dev/null";
  */
 export const DEFAULT_BITRATE = 12000;
 
-function quickSyncVp9Command(params: FFmpegParams, opts: {
-    global: string,
-    input: string,
-    output: string,
-}) {
+function quickSyncVp9Command(
+    params: FFmpegParams,
+    opts: {
+        global: string;
+        input: string;
+        output: string;
+    },
+) {
     return `ffmpeg -init_hw_device qsv=hw -filter_hw_device hw ${opts.global}${opts.input} -i "${params.inputFile ?? "{fileName}"}" -vf hwupload=extra_hw_frames=64,format=qsv -c:v vp9_qsv -c:a libopus${opts.output} -progress - "${params.outputFile ?? "{output}"}"`;
 }
 
 export function generateOutputCommand(params: FFmpegParams) {
     let faststart =
-        params.faststart && params.vcodec === "h264"
+        params.faststart &&
+        (params.customExt === "mp4" ||
+            (params.customExt === "" &&
+                videoFileExtensions[params.vcodec] === "mp4"))
             ? " -movflags +faststart"
             : "";
 
@@ -182,20 +203,34 @@ export function generateOutputCommand(params: FFmpegParams) {
     }
 
     if (params.pixelFormat) {
-        if (params.outputopts === undefined) {
-            params.outputopts = {};
+        if (params.extraopts.output === undefined) {
+            params.extraopts.output = {};
         }
 
-        params.outputopts = {
-            "pix_fmt": params.pixelFormat
-        };
+        params.extraopts.output["pix_fmt"] = params.pixelFormat;
     }
 
-    if (params.outputopts !== undefined) {
-        for (const key of Object.keys(params.outputopts)) {
-            if (params.outputopts[key] === undefined) continue;
+    if (params.extraopts.output !== undefined) {
+        for (const key in params.extraopts.output) {
+            if (params.extraopts.output[key] === undefined) continue;
 
-            outputopts += ` -${key} ${params.outputopts[key]}`.trimEnd();
+            outputopts += ` -${key} ${params.extraopts.output[key]}`.trimEnd();
+        }
+    }
+
+    if (params.extraopts.input !== undefined) {
+        for (const key in params.extraopts.input) {
+            if (params.extraopts.input[key] === undefined) continue;
+
+            inputopts += ` -${key} ${params.extraopts.input[key]}`.trimEnd();
+        }
+    }
+
+    if (params.extraopts.global !== undefined) {
+        for (const key in params.extraopts.global) {
+            if (params.extraopts.global[key] === undefined) continue;
+
+            globalopts += ` -${key} ${params.extraopts.global[key]}`.trimEnd();
         }
     }
 
@@ -203,28 +238,38 @@ export function generateOutputCommand(params: FFmpegParams) {
         return quickSyncVp9Command(params, {
             global: globalopts,
             input: inputopts,
-            output: outputopts
-        })
+            output: outputopts,
+        });
     }
 
     if (params.twopass) {
-        const commonOpts = `${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec} -b:v ${params.vbitrate ?? DEFAULT_BITRATE
-            }k${faststart}${params.preset === undefined ? "" : ` -preset ${params.preset}`
-            } -progress -${outputopts}`;
+        const commonOpts = `${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec} -b:v ${
+            params.vbitrate ?? DEFAULT_BITRATE
+        }k${faststart}${
+            params.preset === undefined ? "" : ` -preset ${params.preset}`
+        } -progress -${outputopts}`;
 
-        return `ffmpeg ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=1" : "-pass 1"} ${params.doNotUseAn ? "-vsync cfr" : "-an"
-            } -f null ${NULL_LOCATION} &&
-ffmpeg ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=2" : "-pass 2"
-            } -c:a ${params.acodec ?? "copy"
-            }${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`} "${params.outputFile ?? "{output}"}"`;
+        return `ffmpeg ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=1" : "-pass 1"} ${
+            params.doNotUseAn ? "-vsync cfr" : "-an"
+        } -f null ${NULL_LOCATION} &&
+ffmpeg ${commonOpts} ${
+            params.vcodec === "hevc" ? "-x265-params pass=2" : "-pass 2"
+        } -c:a ${
+            params.acodec ?? "copy"
+        }${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`} "${params.outputFile ?? "{output}"}"`;
     }
 
-    return `ffmpeg ${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec}${params.crf === undefined ? "" : ` -crf ${params.crf}`
-        }${params.vbitrate === undefined ? "" : ` -b:v ${params.vbitrate}k`
-        }${faststart}${params.preset === undefined ? "" : ` -preset ${params.preset}`
-        } -c:a ${params.acodec ?? "copy"}${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`
-        }${params.speed === undefined ? "" : ` -speed ${params.speed}`
-        } -progress -${outputopts} "${params.outputFile ?? "{output}"}"`;
+    return `ffmpeg ${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec}${
+        params.crf === undefined ? "" : ` -crf ${params.crf}`
+    }${
+        params.vbitrate === undefined ? "" : ` -b:v ${params.vbitrate}k`
+    }${faststart}${
+        params.preset === undefined ? "" : ` -preset ${params.preset}`
+    } -c:a ${params.acodec ?? "copy"}${
+        params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`
+    }${
+        params.speed === undefined ? "" : ` -speed ${params.speed}`
+    } -progress -${outputopts} "${params.outputFile ?? "{output}"}"`;
 }
 
 export async function getLengthMicroseconds(target: string) {

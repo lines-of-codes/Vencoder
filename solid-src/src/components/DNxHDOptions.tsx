@@ -17,7 +17,7 @@ function DNxHDOptions(props: {
     return (
         <section id="commonLossyOptions" class="k-form">
             <label>Help</label>
-            <div>
+            <div class="flex items-center">
                 <button
                     class="icon-button"
                     onclick={() => os.open("https://askubuntu.com/a/907515")}
@@ -31,10 +31,10 @@ function DNxHDOptions(props: {
                 class="k-dropdown"
                 name="profile"
                 id="profile"
-                value={props.params.outputopts?.profile ?? "dnxhd"}
+                value={props.params.extraopts.output?.profile ?? "dnxhd"}
                 oninput={(e) => {
-                    props.onParamChanged("outputopts", {
-                        profile: e.target.value,
+                    props.onParamChanged("extraopts", {
+                        output: { profile: e.target.value },
                     });
                 }}
             >

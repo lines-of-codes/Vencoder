@@ -7,6 +7,7 @@ import {
 } from "@/util/ffmpeg";
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "@/components/BreezeIcon";
+import RateInput from "../RateInput";
 
 const information = {
     h264: {
@@ -111,47 +112,17 @@ function LibH26xOptions(props: {
                 }
             >
                 <label for="bitrate">Bitrate</label>
-                <div>
-                    <input
-                        type="number"
-                        name="bitrate"
-                        id="bitrate"
-                        value={props.params.vbitrate ?? DEFAULT_BITRATE}
-                        oninput={(e) =>
-                            props.onParamChanged(
-                                "vbitrate",
-                                parseInt(e.target.value),
-                            )
-                        }
-                    />
-                    <span> Kbps</span>
-                </div>
-            </Show>
-            <Show when={props.codec?.shortName === "h264"}>
-                <div></div>
-                <div class="checkbox-container">
-                    <input
-                        type="checkbox"
-                        value={props.params.faststart?.toString()}
-                        onInput={(e) => {
-                            props.params.faststart = e.target.checked;
-                            props.onParamChanged("faststart", e.target.checked);
-                        }}
-                        id="fastStartCheck"
-                    />
-                    <label for="fastStartCheck">Enable Fast Start</label>
-                    <button
-                        class="icon-button"
-                        onclick={() =>
-                            os.open(
-                                "https://trac.ffmpeg.org/wiki/Encode/H.264#faststartforwebvideo",
-                            )
-                        }
-                        title="This will move some information to the beginning of your file and allow the video to begin playing before it is completely downloaded by the viewer, recommended for web videos. Click for more information."
-                    >
-                        <BreezeIcon icon="help-about" alt="Help" />
-                    </button>
-                </div>
+                <RateInput
+                    name="bitrate"
+                    id="bitrate"
+                    value={props.params.vbitrate ?? DEFAULT_BITRATE}
+                    oninput={(e) =>
+                        props.onParamChanged(
+                            "vbitrate",
+                            parseInt(e.target.value),
+                        )
+                    }
+                />
             </Show>
         </section>
     );

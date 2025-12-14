@@ -102,7 +102,12 @@ button {
     padding: 2px 6px;
     font-size: inherit;
 
-    &:hover {
+    &:disabled {
+        color: var(--k-border-color);
+        cursor: default;
+    }
+
+    &:not(&:disabled):hover {
         border-color: var(--system-accent-color);
     }
 
@@ -142,7 +147,7 @@ input[type="text"] {
     border-radius: var(--k-border-radius);
     box-shadow: var(--k-border-color) 0 1px;
     padding: var(--k-small-spacing) var(--k-medium-spacing);
-    max-width: 14.85em;
+    max-width: 16em;
     font-size: inherit;
 
     &:hover {
@@ -156,7 +161,7 @@ input[type="number"] {
     border-radius: var(--k-border-radius);
     box-shadow: var(--k-border-color) 0 1px;
     padding: var(--k-small-spacing) var(--k-medium-spacing);
-    max-width: 14.85em;
+    max-width: 16em;
     font-size: inherit;
 
     &:hover {

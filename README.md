@@ -1,13 +1,17 @@
 # Vencoder
 
-A tool to interactively (re-)encode videos using FFmpeg.
+![Vencoder Main Window Screenshot](./MainWindow.png)
+
+*Screenshot taken on Linux with KDE Plasma, Version 0.1.3-dev*
+
+A tool to interactively transcode videos using FFmpeg.
 
 Uses Neutralino.js and Solid.js.
 
 This app _tries_ to imitate KDE's Kirigami UI framework, and also makes use of
 Breeze icons (Located in `./solid-src/public/breeze[-dark]`)
 
-Vencoder is tested with FFmpeg 8.0, should be compatible with older versions
+Vencoder is tested with FFmpeg 8.0.1, should be compatible with older versions
 but is not guaranteed.
 
 ## Running
@@ -50,7 +54,7 @@ encoders supported by your FFmpeg install will show up.
     -   [x] librav1e (Partial support)
     -   [x] libsvtav1
     -   [ ] av1_amf
-    -   [ ] av1_nvenc
+    -   [x] av1_nvenc (Untested as I don't have a 40/50 series card)
     -   [ ] av1_qsv
     -   [ ] av1_vaapi
 -   [x] DNxHD (Does not provide options to deal with its pickiness yet)
@@ -58,14 +62,14 @@ encoders supported by your FFmpeg install will show up.
     -   [x] libx264
     -   [x] libx264rgb (Untested, but _should_ work)
     -   [ ] h264_amf
-    -   [ ] h264_nvenc
+    -   [x] h264_nvenc
     -   [x] h264_qsv
     -   [ ] h264_vaapi
     -   [ ] h264_vulkan
 -   [x] H.265
     -   [x] libx265
     -   [ ] h265_amf
-    -   [ ] h265_nvenc
+    -   [x] h265_nvenc
     -   [x] h265_qsv
     -   [ ] h265_vaapi
     -   [ ] h265_vulkan
@@ -73,4 +77,3 @@ encoders supported by your FFmpeg install will show up.
     -   [ ] libvpx-vp9
     -   [ ] vp9_vaapi
     -   [x] vp9_qsv (Really Basic)
-

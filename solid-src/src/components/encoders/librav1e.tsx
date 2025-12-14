@@ -7,6 +7,7 @@ import {
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "@/components/BreezeIcon";
 import { onMount } from "solid-js";
+import RateInput from "../RateInput";
 
 function Librav1eOptions(props: {
     codec: CodecInfo | undefined;
@@ -50,21 +51,14 @@ function Librav1eOptions(props: {
                 }
             />
             <label for="bitrate">Bitrate</label>
-            <div class="row gap2 align-items-center">
-                <input
-                    type="number"
-                    name="bitrate"
-                    id="bitrate"
-                    value={props.params.vbitrate ?? DEFAULT_BITRATE}
-                    oninput={(e) =>
-                        props.onParamChanged(
-                            "vbitrate",
-                            parseInt(e.target.value),
-                        )
-                    }
-                />
-                <span>Kbps</span>
-            </div>
+            <RateInput
+                name="bitrate"
+                id="bitrate"
+                value={props.params.vbitrate ?? DEFAULT_BITRATE}
+                oninput={(e) =>
+                    props.onParamChanged("vbitrate", parseInt(e.target.value))
+                }
+            />
         </section>
     );
 }

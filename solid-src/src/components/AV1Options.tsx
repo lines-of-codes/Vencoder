@@ -7,6 +7,7 @@ import type {
 import LibaomOptions from "./encoders/libaom";
 import Librav1eOptions from "./encoders/librav1e";
 import LibSvtAv1Options from "./encoders/libsvtav1";
+import NvEncOptions from "./encoders/nvenc";
 
 function AV1Options(props: {
     codec: CodecInfo | undefined;
@@ -24,6 +25,9 @@ function AV1Options(props: {
             </Match>
             <Match when={props.encoder === "libsvtav1"}>
                 <LibSvtAv1Options {...props} />
+            </Match>
+            <Match when={props.encoder === "av1_nvenc"}>
+                <NvEncOptions {...props} />
             </Match>
         </Switch>
     );

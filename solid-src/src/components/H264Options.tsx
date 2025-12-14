@@ -6,6 +6,7 @@ import {
 } from "../util/ffmpeg";
 import LibH26xOptions from "./encoders/libx264";
 import H264QsvOptions from "./encoders/h264qsv";
+import NvEncOptions from "./encoders/nvenc";
 
 /**
  * Options for H.264/H.265 codecs
@@ -33,6 +34,14 @@ function H264Options(props: {
                 }
             >
                 <H264QsvOptions {...props} />
+            </Match>
+            <Match
+                when={
+                    props.encoder === "h264_nvenc" ||
+                    props.encoder === "hevc_nvenc"
+                }
+            >
+                <NvEncOptions {...props} />
             </Match>
         </Switch>
     );

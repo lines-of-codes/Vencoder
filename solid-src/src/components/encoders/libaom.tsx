@@ -7,6 +7,7 @@ import {
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "@/components/BreezeIcon";
 import { createEffect, createSignal, Show } from "solid-js";
+import RateInput from "../RateInput";
 
 const DEFAULT_CRF = 23;
 
@@ -48,7 +49,7 @@ function LibaomOptions(props: {
     return (
         <section id="encoderOptions" class="k-form">
             <label>Help</label>
-            <div>
+            <div class="flex items-center">
                 <button
                     class="icon-button"
                     onclick={() =>
@@ -94,22 +95,17 @@ function LibaomOptions(props: {
             </Show>
             <Show when={rateControlMode() !== "Constant"}>
                 <label for="bitrate">Bitrate</label>
-                <div class="row gap2 align-items-center">
-                    <input
-                        type="number"
-                        name="bitrate"
-                        id="bitrate"
-                        aria-label="Kbps"
-                        value={props.params.vbitrate ?? DEFAULT_BITRATE}
-                        oninput={(e) => {
-                            props.onParamChanged(
-                                "vbitrate",
-                                parseInt(e.target.value),
-                            );
-                        }}
-                    />
-                    <span>Kbps</span>
-                </div>
+                <RateInput
+                    name="bitrate"
+                    id="bitrate"
+                    value={props.params.vbitrate ?? DEFAULT_BITRATE}
+                    oninput={(e) => {
+                        props.onParamChanged(
+                            "vbitrate",
+                            parseInt(e.target.value),
+                        );
+                    }}
+                />
             </Show>
         </section>
     );

@@ -5,6 +5,7 @@ import {
     type FFmpegParams,
 } from "@/util/ffmpeg";
 import { createEffect, createSignal, onMount, Show } from "solid-js";
+import RateInput from "../RateInput";
 
 function H264QsvOptions({
     onParamChanged,
@@ -40,7 +41,7 @@ function H264QsvOptions({
                 break;
         }
 
-        onParamChanged("outputopts", opts);
+        onParamChanged("extraopts", { output: opts });
     });
 
     onMount(() => {
@@ -90,16 +91,12 @@ function H264QsvOptions({
             </Show>
             <Show when={rateControl() === "cbr" || rateControl() === "vbr"}>
                 <label for="bitrate">Bitrate</label>
-                <div>
-                    <input
-                        type="number"
-                        name="bitrate"
-                        id="bitrate"
-                        value={bitrate()}
-                        oninput={(e) => setBitrate(parseInt(e.target.value))}
-                    />
-                    <span> Kbps</span>
-                </div>
+                <RateInput
+                    name="bitrate"
+                    id="bitrate"
+                    value={bitrate()}
+                    oninput={(e) => setBitrate(parseInt(e.target.value))}
+                />
             </Show>
             <Show when={rateControl() === "vbr" || rateControl() === "icq"}>
                 <div></div>

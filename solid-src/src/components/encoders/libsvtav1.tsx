@@ -27,10 +27,10 @@ function LibSvtAv1Options({
             params.push(`film-grain=${filmGrain()}`);
         }
 
-        onParamChanged("outputopts", {
+        onParamChanged("extraopts", {output: {
             g: g === "-1" ? undefined : g,
             "svtav1-params": params.join(":"),
-        });
+        }});
     });
 
     return (

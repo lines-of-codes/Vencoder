@@ -6,6 +6,7 @@ import {
 } from "../util/ffmpeg";
 import { os } from "@neutralinojs/lib";
 import BreezeIcon from "./BreezeIcon";
+import RateInput from "./RateInput";
 
 function VP9Options(props: {
     codec: CodecInfo | undefined;
@@ -95,22 +96,18 @@ function VP9Options(props: {
                 }
             >
                 <label for="bitrate">Bitrate</label>
-                <div>
-                    <input
-                        type="number"
-                        name="bitrate"
-                        id="bitrate"
-                        value={props.params.vbitrate ?? DEFAULT_BITRATE}
-                        oninput={(e) => {
-                            props.params.vbitrate = parseInt(e.target.value);
-                            props.onParamChanged(
-                                "vbitrate",
-                                parseInt(e.target.value),
-                            );
-                        }}
-                    />
-                    <span> Kbps</span>
-                </div>
+                <RateInput
+                    name="bitrate"
+                    id="bitrate"
+                    value={props.params.vbitrate ?? DEFAULT_BITRATE}
+                    oninput={(e) => {
+                        props.params.vbitrate = parseInt(e.target.value);
+                        props.onParamChanged(
+                            "vbitrate",
+                            parseInt(e.target.value),
+                        );
+                    }}
+                />
             </Show>
             <Show when={props.codec?.shortName === "h264"}>
                 <div></div>
