@@ -52,7 +52,7 @@ function NvEncOptions({
             output: {
                 tune: tune(),
                 rc,
-                lookahead: lookahead(),
+                "rc-lookahead": lookahead(),
                 g: gop() === "-1" ? undefined : gop(),
                 bf: bframe() === "-1" ? undefined : bframe(),
                 b_ref_mode: bRefMode(),

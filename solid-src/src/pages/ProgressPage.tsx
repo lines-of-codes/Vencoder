@@ -1,7 +1,13 @@
 import { openFile } from "@/util/oshelper";
 import { getTemporaryFilePath, getVencoderFolder } from "@/util/path";
 import { durationString, generateRandomString } from "@/util/string";
-import { events, os, storage, type SpawnedProcess } from "@neutralinojs/lib";
+import {
+    events,
+    os,
+    storage,
+    filesystem,
+    type SpawnedProcess,
+} from "@neutralinojs/lib";
 import { createSignal, onMount, onCleanup, Show } from "solid-js";
 import { Temporal } from "temporal-polyfill";
 
@@ -115,13 +121,13 @@ function ProgressPage() {
 
                     // If the exit code isn't 255 (the exit code of the program exiting because of cancellation)
                     if (evt.detail.data !== 255) {
-                        Neutralino.os.showNotification(
+                        os.showNotification(
                             "File Encoding Failed",
                             `Encoding for file "${filesBeingProcessed[evt.detail.id].in}" failed. Exit code ${evt.detail.data}.`,
                         );
 
                         const tempFilename = `${getTemporaryFilePath()}/vencoder-ffmpeg-${generateRandomString(8)}.log`;
-                        Neutralino.filesystem.writeFile(
+                        filesystem.writeFile(
                             tempFilename,
                             logs[evt.detail.id].join("\n"),
                         );
