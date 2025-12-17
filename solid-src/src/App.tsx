@@ -29,6 +29,7 @@ import BreezeIcon from "./components/BreezeIcon";
 import AV1Options from "./components/AV1Options";
 import DNxHDOptions from "./components/DNxHDOptions";
 import HelpButton from "./components/HelpButton";
+import VP9QsvOptions from "./components/encoders/vp9qsv";
 
 const commonCodecs = new Set(["h264", "hevc", "vp9", "av1", "dnxhd"]);
 
@@ -586,6 +587,13 @@ function App() {
                                 when={selectedCodec()?.shortName === "dnxhd"}
                             >
                                 <DNxHDOptions
+                                    codec={selectedCodec()}
+                                    params={ffmpegParams}
+                                    onParamChanged={onParametersChanged}
+                                />
+                            </Match>
+                            <Match when={selectedEncoder() === "vp9_qsv"}>
+                                <VP9QsvOptions
                                     codec={selectedCodec()}
                                     params={ffmpegParams}
                                     onParamChanged={onParametersChanged}

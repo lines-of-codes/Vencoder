@@ -7,7 +7,7 @@ import {
 import { createEffect, createSignal, onMount, Show } from "solid-js";
 import RateInput from "../RateInput";
 
-function H264QsvOptions({
+function VP9QsvOptions({
     params,
     onParamChanged,
 }: {
@@ -15,8 +15,7 @@ function H264QsvOptions({
     params: FFmpegParams;
     onParamChanged: FFmpegParamChangedFunc;
 }) {
-    const [rateControl, setRateControl] = createSignal("icq");
-    const [globalQuality, setGlobalQuality] = createSignal(18);
+    const [rateControl, setRateControl] = createSignal("vbr");
     const [bitrate, setBitrate] = createSignal(DEFAULT_BITRATE);
     const [cqp, setCqp] = createSignal(18);
 
@@ -24,11 +23,6 @@ function H264QsvOptions({
         const opts: Record<string, string> = {};
 
         switch (rateControl()) {
-            case "icq":
-                onParamChanged("vbitrate", undefined);
-                const quality = globalQuality();
-                opts["global_quality"] = quality.toString();
-                break;
             case "cbr":
                 onParamChanged("vbitrate", bitrate());
                 opts["maxrate"] = `${bitrate() ?? DEFAULT_BITRATE}k`;
@@ -85,20 +79,7 @@ function H264QsvOptions({
                     CQP: Constant Quantization Parameter
                 </option>
                 <option value="vbr">VBR: Variable Bitrate</option>
-                <option value="icq">ICQ: Intelligent Constant Quality</option>
             </select>
-            <Show when={rateControl() === "icq"}>
-                <label for="globalQuality">Global Quality</label>
-                <input
-                    type="number"
-                    name="globalQuality"
-                    id="globalQuality"
-                    min="1"
-                    max="51"
-                    value={globalQuality()}
-                    oninput={(e) => setGlobalQuality(parseInt(e.target.value))}
-                />
-            </Show>
             <Show when={rateControl() === "cqp"}>
                 <label for="cqp">CQP</label>
                 <input
@@ -134,4 +115,4 @@ function H264QsvOptions({
     );
 }
 
-export default H264QsvOptions;
+export default VP9QsvOptions;

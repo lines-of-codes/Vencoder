@@ -172,23 +172,12 @@ const NULL_LOCATION = window.NL_OS === "Windows" ? "NUL" : "/dev/null";
  */
 export const DEFAULT_BITRATE = 12000;
 
-function quickSyncVp9Command(
-    params: FFmpegParams,
-    opts: {
-        global: string;
-        input: string;
-        output: string;
-    },
-) {
-    return `ffmpeg -init_hw_device qsv=hw -filter_hw_device hw ${opts.global}${opts.input} -i "${params.inputFile ?? "{fileName}"}" -vf hwupload=extra_hw_frames=64,format=qsv -c:v vp9_qsv -c:a libopus${opts.output} -progress - "${params.outputFile ?? "{output}"}"`;
-}
-
 export function generateOutputCommand(params: FFmpegParams) {
     let faststart =
         params.faststart &&
-        (params.customExt === "mp4" ||
-            (params.customExt === "" &&
-                videoFileExtensions[params.vcodec] === "mp4"))
+            (params.customExt === "mp4" ||
+                (params.customExt === "" &&
+                    videoFileExtensions[params.vcodec] === "mp4"))
             ? " -movflags +faststart"
             : "";
 
@@ -234,42 +223,24 @@ export function generateOutputCommand(params: FFmpegParams) {
         }
     }
 
-    if (params.encoder === "vp9_qsv") {
-        return quickSyncVp9Command(params, {
-            global: globalopts,
-            input: inputopts,
-            output: outputopts,
-        });
-    }
-
     if (params.twopass) {
-        const commonOpts = `${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec} -b:v ${
-            params.vbitrate ?? DEFAULT_BITRATE
-        }k${faststart}${
-            params.preset === undefined ? "" : ` -preset ${params.preset}`
-        } -progress -${outputopts}`;
+        const commonOpts = `${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec} -b:v ${params.vbitrate ?? DEFAULT_BITRATE
+            }k${faststart}${params.preset === undefined ? "" : ` -preset ${params.preset}`
+            } -progress -${outputopts}`;
 
-        return `ffmpeg ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=1" : "-pass 1"} ${
-            params.doNotUseAn ? "-vsync cfr" : "-an"
-        } -f null ${NULL_LOCATION} &&
-ffmpeg ${commonOpts} ${
-            params.vcodec === "hevc" ? "-x265-params pass=2" : "-pass 2"
-        } -c:a ${
-            params.acodec ?? "copy"
-        }${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`} "${params.outputFile ?? "{output}"}"`;
+        return `ffmpeg ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=1" : "-pass 1"} ${params.doNotUseAn ? "-vsync cfr" : "-an"
+            } -f null ${NULL_LOCATION} &&
+ffmpeg ${commonOpts} ${params.vcodec === "hevc" ? "-x265-params pass=2" : "-pass 2"
+            } -c:a ${params.acodec ?? "copy"
+            }${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`} "${params.outputFile ?? "{output}"}"`;
     }
 
-    return `ffmpeg ${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec}${
-        params.crf === undefined ? "" : ` -crf ${params.crf}`
-    }${
-        params.vbitrate === undefined ? "" : ` -b:v ${params.vbitrate}k`
-    }${faststart}${
-        params.preset === undefined ? "" : ` -preset ${params.preset}`
-    } -c:a ${params.acodec ?? "copy"}${
-        params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`
-    }${
-        params.speed === undefined ? "" : ` -speed ${params.speed}`
-    } -progress -${outputopts} "${params.outputFile ?? "{output}"}"`;
+    return `ffmpeg ${globalopts}${inputopts} -i "${params.inputFile ?? "{fileName}"}" -c:v ${params.encoder ?? params.vcodec}${params.crf === undefined ? "" : ` -crf ${params.crf}`
+        }${params.vbitrate === undefined ? "" : ` -b:v ${params.vbitrate}k`
+        }${faststart}${params.preset === undefined ? "" : ` -preset ${params.preset}`
+        } -c:a ${params.acodec ?? "copy"}${params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`
+        }${params.speed === undefined ? "" : ` -speed ${params.speed}`
+        } -progress -${outputopts} "${params.outputFile ?? "{output}"}"`;
 }
 
 export async function getLengthMicroseconds(target: string) {

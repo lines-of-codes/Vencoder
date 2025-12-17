@@ -29,6 +29,7 @@ function Settings() {
         <main class="row flex-col container">
             <header
                 class={`k-page-header ${windowFocused() ? "" : "window-blur"}`}
+                style={{ width: "100vw" }}
             >
                 <div class="page-title" role="heading">
                     Settings
