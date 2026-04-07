@@ -30,8 +30,13 @@ import AV1Options from "./components/AV1Options";
 import DNxHDOptions from "./components/DNxHDOptions";
 import HelpButton from "./components/HelpButton";
 import VP9QsvOptions from "./components/encoders/vp9qsv";
+import {
+    DEFAULT_SETTINGS,
+    loadSettings,
+    SETTINGS_CHANGED,
+} from "./util/settings";
 
-const commonCodecs = new Set(["h264", "hevc", "vp9", "av1", "dnxhd"]);
+const commonCodecs = new Set(["h264", "hevc", "vp9", "av1", "dnxhd", "prores"]);
 
 interface FileQueueItem {
     command: string;
@@ -61,6 +66,7 @@ function App() {
     const [pixelFormatList, setPixelFormatList] = createSignal([] as string[]);
     const [pixelFormat, setPixelFormat] = createSignal("");
     const [fastStart, setFastStart] = createSignal(false);
+    const [settings, setSettings] = createSignal(DEFAULT_SETTINGS);
     let supportedCodecs: CodecList = { vcodecs: [], acodecs: [] };
     let ffmpegParams: FFmpegParams = {
         vcodec: "",
@@ -80,9 +86,16 @@ function App() {
         setWindowFocused(false);
     }
 
+    function settingsChanged(e: CustomEvent) {
+        console.log("Settings changed!", e.detail);
+        setSettings(e.detail);
+    }
+
     onMount(async () => {
         events.on("windowFocus", windowIsFocused);
         events.on("windowBlur", windowUnfocused);
+        events.on(SETTINGS_CHANGED, settingsChanged);
+        setSettings(await loadSettings());
 
         supportedCodecs = await getAvailableCodecs();
         filterDisplayedCodecs();
@@ -118,7 +131,7 @@ function App() {
     }
 
     function playBtnClicked() {
-        playFile(selectedClip());
+        playFile(selectedClip(), settings());
     }
 
     async function openBtnClicked() {
@@ -212,7 +225,7 @@ function App() {
     function settingsBtnPressed() {
         Neutralino.window.create(`${window.location.href}settings`, {
             width: 800,
-            height: 600,
+            height: 400,
             x: 120,
             y: 120,
             injectGlobals: true,
@@ -301,7 +314,9 @@ function App() {
             if (userAnswer === "NO") {
                 return;
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error(e);
+        }
 
         const length = await getLengthMicroseconds(clip);
 

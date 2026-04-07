@@ -15,6 +15,9 @@ but is not guaranteed.
 
 ## Installation
 
+The main dependency of Vencoder is FFmpeg, and for Linux platform, please also
+have GTK 3 and `webkit2gtk4.1` installed.
+
 Binaries are provided in the GitHub release, with `vencoder-release.zip`
 containing all the files for Windows, Linux, and macOS.
 
@@ -23,9 +26,22 @@ containing all the files for Windows, Linux, and macOS.
 The GitHub release provides `vencoder-winx64.exe` which is a simple setup
 program created with Inno Setup.
 
-### AUR
+You can install FFmpeg by running `winget install ffmpeg` (or
+`scoop install ffmpeg` or `choco install ffmpeg-full`)
 
-Vencoder is available on the Arch User Repository as [`vencoder-bin`](https://aur.archlinux.org/packages/vencoder-bin)
+### Arch Linux
+
+Vencoder is available on the Arch User Repository as
+[`vencoder-bin`](https://aur.archlinux.org/packages/vencoder-bin)
+
+### Fedora Linux
+
+Please make sure you have the packages `gtk3` and `webkit2gtk4.1` installed.
+(Although you should likely already have GTK 3 installed)
+
+Fedora Linux default `ffmpeg-free` package may also not support as much codecs
+as you want to, Please follow the article on [RPMFusion](https://rpmfusion.org/Howto/Multimedia)
+to install the full FFmpeg version.
 
 ## Regarding Performance
 

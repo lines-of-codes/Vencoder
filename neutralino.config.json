@@ -1,49 +1,50 @@
 {
-    "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralinojs/main/schemas/neutralino.config.schema.json",
-    "applicationId": "xyz.dailitation.linesofcodes.vencoder",
-    "version": "0.1.1",
-    "defaultMode": "window",
-    "documentRoot": "/solid-src/dist/",
-    "url": "/",
-    "port": 5432,
-    "enableServer": true,
-    "enableNativeAPI": true,
-    "singlePageServe": true,
-    "tokenSecurity": "none",
-    "nativeAllowList": [
-        "app.*",
-        "os.*",
-        "window.create",
-        "filesystem.*",
-        "storage.*",
-        "debug.log"
-    ],
-    "dataLocation": "system",
-    "storageLocation": "system",
-    "logging": {
-        "writeToLogFile": false
-    },
-    "modes": {
-        "window": {
-            "title": "Vencoder",
-            "width": 1280,
-            "height": 720,
-            "minWidth": 600,
-            "minHeight": 400,
-            "icon": "/solid-src/public/vite.svg",
-            "enableInspector": true,
-            "openInspectorOnStartup": false
-        }
-    },
-    "cli": {
-        "binaryName": "vencoder",
-        "resourcesPath": "/solid-src/dist/",
-        "extensionsPath": "/extensions/",
-        "binaryVersion": "6.4.0",
-        "clientVersion": "6.4.0",
-        "frontendLibrary": {
-            "patchFile": "/solid-src/index.html",
-            "devUrl": "http://localhost:5173"
-        }
+  "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralinojs/main/schemas/neutralino.config.schema.json",
+  "applicationId": "xyz.dailitation.linesofcodes.vencoder",
+  "version": "0.1.1",
+  "defaultMode": "window",
+  "documentRoot": "/solid-src/dist/",
+  "url": "/",
+  "port": 5432,
+  "enableServer": true,
+  "enableNativeAPI": true,
+  "singlePageServe": true,
+  "tokenSecurity": "none",
+  "nativeAllowList": [
+    "app.*",
+    "os.*",
+    "events.*",
+    "window.create",
+    "filesystem.*",
+    "storage.*",
+    "debug.log"
+  ],
+  "dataLocation": "system",
+  "storageLocation": "system",
+  "logging": {
+    "writeToLogFile": false
+  },
+  "modes": {
+    "window": {
+      "title": "Vencoder",
+      "width": 1280,
+      "height": 720,
+      "minWidth": 600,
+      "minHeight": 400,
+      "icon": "/solid-src/public/vite.svg",
+      "enableInspector": true,
+      "openInspectorOnStartup": false
     }
+  },
+  "cli": {
+    "binaryName": "vencoder",
+    "resourcesPath": "/solid-src/dist/",
+    "extensionsPath": "/extensions/",
+    "binaryVersion": "6.7.0",
+    "clientVersion": "6.5.0",
+    "frontendLibrary": {
+      "patchFile": "/solid-src/index.html",
+      "devUrl": "http://localhost:5173"
+    }
+  }
 }

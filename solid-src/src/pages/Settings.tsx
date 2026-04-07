@@ -1,11 +1,21 @@
+import { downloadFFmpeg } from "@/util/downloadFFmpeg";
+import { loadSettings, saveSettings } from "@/util/settings";
 import { events } from "@neutralinojs/lib";
-import { createSignal, onCleanup, onMount, Show } from "solid-js";
+import {
+    createEffect,
+    createSignal,
+    on,
+    onCleanup,
+    onMount,
+    Show,
+} from "solid-js";
 
 function Settings() {
     const [windowFocused, setWindowFocused] = createSignal(true);
     const [useSystemFFmpeg, setUseSystemFFmpeg] = createSignal(true);
-    const [useFFplay, setUseFFplay] = createSignal(true);
+    const [useFFplay, setUseFFplay] = createSignal(false);
     const [ffmpegPath, setFfmpegPath] = createSignal("");
+    const [isDownloading, setIsDownloading] = createSignal(false);
 
     function windowIsFocused() {
         setWindowFocused(false);
@@ -15,15 +25,43 @@ function Settings() {
         setWindowFocused(true);
     }
 
+    async function downloadBtnClicked() {
+        setIsDownloading(true);
+        await downloadFFmpeg();
+        setIsDownloading(false);
+    }
+
     onMount(async () => {
         events.on("windowFocus", windowIsFocused);
         events.on("windowBlur", windowUnfocused);
+        const settings = await loadSettings();
+        setUseFFplay(settings.ffplay);
+        setUseSystemFFmpeg(settings.ffpath === null);
+
+        if (settings.ffpath !== null) {
+            setFfmpegPath(settings.ffpath);
+        }
     });
 
     onCleanup(() => {
         events.off("windowFocus", windowIsFocused);
         events.off("windowBlur", windowUnfocused);
     });
+
+    createEffect(
+        on(
+            [useFFplay, ffmpegPath],
+            async () => {
+                const ffpath = ffmpegPath();
+
+                await saveSettings({
+                    ffplay: useFFplay(),
+                    ffpath: ffpath === "" ? null : ffpath,
+                });
+            },
+            { defer: true },
+        ),
+    );
 
     return (
         <main class="row flex-col container">
@@ -45,11 +83,10 @@ function Settings() {
                         <input
                             id="useFFplay"
                             type="checkbox"
-                            value={useFFplay().toString()}
+                            checked={useFFplay()}
                             onInput={(e) =>
                                 setUseFFplay(e.currentTarget.checked)
                             }
-                            checked
                         />
                         <label for="useFFplay">
                             Use <code>ffplay</code> instead of system's default
@@ -81,13 +118,20 @@ function Settings() {
                             }
                         />
                         <div></div>
-                        <button class="k-button k-form-button">Download</button>
+                        <button
+                            class="k-button k-form-button"
+                            onclick={downloadBtnClicked}
+                        >
+                            Download
+                        </button>
+                    </Show>
+                    <Show when={isDownloading()}>
+                        <div></div>
+                        <div>FFmpeg is being downloaded, Please wait!</div>
                     </Show>
                 </div>
             </div>
-            <footer class="p-medium">
-                <button class="k-button">Save Changes</button>
-            </footer>
+            <footer class="p-medium"></footer>
         </main>
     );
 }

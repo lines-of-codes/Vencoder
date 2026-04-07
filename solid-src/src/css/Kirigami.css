@@ -135,6 +135,7 @@ button {
     box-shadow: var(--k-border-color) 0 1px;
     max-width: 16em;
     font-size: inherit;
+    accent-color: var(--system-accent-color);
 
     &:hover {
         border-color: var(--system-accent-color);
@@ -197,6 +198,7 @@ input[type="checkbox"] {
     width: 1em;
     height: 1em;
     border-radius: var(--k-border-radius);
+    accent-color: var(--system-accent-color);
 }
 
 .k-text-field {

@@ -9,5 +9,5 @@ const openFilePrograms: { [os: string]: string } = {
 export function openFile(path: string) {
     let program = openFilePrograms[window.NL_OS] ?? "";
 
-    return os.execCommand(`${program} ${path}`);
+    return os.execCommand(`${program} "${path}"`);
 }
