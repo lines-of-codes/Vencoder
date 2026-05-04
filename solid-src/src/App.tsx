@@ -229,7 +229,7 @@ function App() {
             x: 120,
             y: 120,
             injectGlobals: true,
-            processArgs: "--port=5434",
+            processArgs: "--port=5542",
         });
     }
 
@@ -358,7 +358,7 @@ function App() {
             y: 120,
             injectGlobals: true,
             maximizable: false,
-            processArgs: "--port=5433",
+            processArgs: "--port=5541",
         });
     }
 
@@ -389,7 +389,7 @@ function App() {
             y: 120,
             injectGlobals: true,
             maximizable: false,
-            processArgs: "--port=5433",
+            processArgs: "--port=5541",
         });
     }
 

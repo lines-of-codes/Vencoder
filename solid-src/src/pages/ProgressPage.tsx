@@ -222,7 +222,7 @@ function ProgressPage() {
                 </header>
                 <div
                     class="p-grid col row flex-col"
-                    style={{ overflow: "scroll" }}
+                    style={{ overflow: "scroll", "max-height": "80vh" }}
                 >
                     <Show when={finished()}>
                         Processes finished. You can close this window.
