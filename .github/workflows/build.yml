@@ -13,8 +13,8 @@ jobs:
               with:
                   node-version: "latest"
             - name: Check out the repository code
-              uses: actions/checkout@v4
-            - uses: pnpm/action-setup@v4
+              uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v6
               with:
                 version: latest
             - name: Build front-end
@@ -28,7 +28,7 @@ jobs:
                   wget https://github.com/neutralinojs/neutralinojs/releases/download/v6.7.0/neutralinojs-v6.7.0.zip
                   unzip neutralinojs-v6.7.0.zip -d bin/
                   pnpx @neutralinojs/neu build
-            - uses: actions/upload-artifact@v4
+            - uses: actions/upload-artifact@v7
               with:
                   name: vencoder-experimental
                   path: ${{ github.workspace }}/dist/vencoder/
