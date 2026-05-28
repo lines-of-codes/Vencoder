@@ -152,6 +152,7 @@ export interface FFmpegParams {
     pixelFormat?: string;
     i_qfactor?: number;
     b_qfactor?: number;
+    r?: number;
     /**
      * Custom file extension
      */
@@ -257,6 +258,8 @@ ffmpeg ${commonOpts} ${
         params.abitrate === undefined ? "" : ` -b:a ${params.abitrate}k`
     }${
         params.speed === undefined ? "" : ` -speed ${params.speed}`
+    }${
+        params.r === undefined ? "" : ` -r ${params.r}`
     } -progress -${outputopts} "${params.outputFile ?? "{output}"}"`;
 }
 

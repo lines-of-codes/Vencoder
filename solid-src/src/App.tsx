@@ -66,6 +66,7 @@ function App() {
     const [pixelFormatList, setPixelFormatList] = createSignal([] as string[]);
     const [pixelFormat, setPixelFormat] = createSignal("");
     const [fastStart, setFastStart] = createSignal(false);
+    const [framerate, setFramerate] = createSignal(-1);
     const [settings, setSettings] = createSignal(DEFAULT_SETTINGS);
     let supportedCodecs: CodecList = { vcodecs: [], acodecs: [] };
     let ffmpegParams: FFmpegParams = {
@@ -247,6 +248,7 @@ function App() {
         }
 
         const pixFmt = pixelFormat();
+        const rate = framerate();
 
         ffmpegParams = {
             vcodec: selectedCodec()?.shortName ?? "",
@@ -267,6 +269,7 @@ function App() {
                 output: outputopts(),
             },
             pixelFormat: pixFmt === "" ? undefined : pixFmt,
+            r: rate < 0 ? undefined : rate,
             extraopts: ffmpegParams.extraopts,
             customExt: customFileExt(),
         };
@@ -538,6 +541,15 @@ function App() {
                                     )}
                                 </For>
                             </select>
+                            <label for="outputFps">Output Framerate</label>
+                            <input
+                                type="number"
+                                id="outputFps"
+                                value={framerate()}
+                                oninput={(e) => setFramerate(parseInt(e.target.value))}
+                                title="The framerate of the output. Leave at -1 for unspecified (Same as input)."
+                                min="-1"
+                            />
                             <Show
                                 when={
                                     customFileExt() === "mp4" ||

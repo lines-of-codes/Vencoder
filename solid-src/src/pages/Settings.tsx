@@ -1,29 +1,18 @@
 import { downloadFFmpeg } from "@/util/downloadFFmpeg";
 import { loadSettings, saveSettings } from "@/util/settings";
-import { events } from "@neutralinojs/lib";
+import { os } from "@neutralinojs/lib";
 import {
     createEffect,
     createSignal,
     on,
-    onCleanup,
     onMount,
     Show,
 } from "solid-js";
 
 function Settings() {
-    const [windowFocused, setWindowFocused] = createSignal(true);
-    const [useSystemFFmpeg, setUseSystemFFmpeg] = createSignal(true);
     const [useFFplay, setUseFFplay] = createSignal(false);
     const [ffmpegPath, setFfmpegPath] = createSignal("");
     const [isDownloading, setIsDownloading] = createSignal(false);
-
-    function windowIsFocused() {
-        setWindowFocused(false);
-    }
-
-    function windowUnfocused() {
-        setWindowFocused(true);
-    }
 
     async function downloadBtnClicked() {
         setIsDownloading(true);
@@ -31,21 +20,21 @@ function Settings() {
         setIsDownloading(false);
     }
 
+    async function browseBtnClicked() {
+        const entries = await os.showOpenDialog("Select ffmpeg binary");
+
+        if (entries.length === 0) return;
+
+        setFfmpegPath(entries[0]);
+    }
+
     onMount(async () => {
-        events.on("windowFocus", windowIsFocused);
-        events.on("windowBlur", windowUnfocused);
         const settings = await loadSettings();
         setUseFFplay(settings.ffplay);
-        setUseSystemFFmpeg(settings.ffpath === null);
 
         if (settings.ffpath !== null) {
             setFfmpegPath(settings.ffpath);
         }
-    });
-
-    onCleanup(() => {
-        events.off("windowFocus", windowIsFocused);
-        events.off("windowBlur", windowUnfocused);
     });
 
     createEffect(
@@ -65,10 +54,7 @@ function Settings() {
 
     return (
         <main class="row flex-col container">
-            <header
-                class={`k-page-header ${windowFocused() ? "" : "window-blur"}`}
-                style={{ width: "100vw" }}
-            >
+            <header class="k-page-header" style={{ width: "100vw" }}>
                 <div class="page-title" role="heading">
                     Settings
                 </div>
@@ -93,38 +79,29 @@ function Settings() {
                             media player
                         </label>
                     </div>
+                    <label for="ffmpegPath">FFmpeg Path</label>
+                    <input
+                        type="text"
+                        value={ffmpegPath()}
+                        onInput={(e) => setFfmpegPath(e.currentTarget.value)}
+                        title="Path to the FFmpeg binary. Leave empty to use the system's install (if available)."
+                        placeholder="Use system's install"
+                    />
                     <div></div>
-                    <div class="checkbox-container">
-                        <input
-                            id="useSystemFFmpeg"
-                            type="checkbox"
-                            value={useSystemFFmpeg().toString()}
-                            onInput={(e) =>
-                                setUseSystemFFmpeg(e.currentTarget.checked)
-                            }
-                            checked
-                        />
-                        <label for="useSystemFFmpeg">
-                            Use system's FFmpeg installation
-                        </label>
-                    </div>
-                    <Show when={!useSystemFFmpeg()}>
-                        <label for="ffmpegPath">FFmpeg Path</label>
-                        <input
-                            type="text"
-                            value={ffmpegPath()}
-                            onInput={(e) =>
-                                setFfmpegPath(e.currentTarget.value)
-                            }
-                        />
-                        <div></div>
+                    <div class="flex gap2" style="max-width: 16em;">
                         <button
-                            class="k-button k-form-button"
+                            class="k-button k-form-button col"
+                            onclick={browseBtnClicked}
+                        >
+                            Browse...
+                        </button>
+                        <button
+                            class="k-button k-form-button col"
                             onclick={downloadBtnClicked}
                         >
                             Download
                         </button>
-                    </Show>
+                    </div>
                     <Show when={isDownloading()}>
                         <div></div>
                         <div>FFmpeg is being downloaded, Please wait!</div>
