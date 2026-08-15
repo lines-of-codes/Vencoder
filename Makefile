@@ -1,3 +1,9 @@
+configure:
+	npm i -g corepack@latest
+	corepack enable pnpm
+	cd solid-src; \
+		pnpm i
+
 frontend:
 	cd solid-src; \
 		pnpm build
@@ -7,4 +13,3 @@ build: frontend
 
 release: frontend
 	neu build --clean -r --embed-resources
-

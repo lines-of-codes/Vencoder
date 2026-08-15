@@ -23,10 +23,6 @@
         --k-primary-highlight: #292c30;
     }
 
-    body {
-        font-weight: 300;
-    }
-
     .k-dropdown {
         background-image: url("/breeze-dark/actions/16/go-down.svg") !important;
     }
