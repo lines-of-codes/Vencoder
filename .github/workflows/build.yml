@@ -20,13 +20,13 @@ jobs:
             - name: Build front-end
               run: |
                   cd ${{ github.workspace }}/solid-src
-                  pnpm i
+                  pnpm i --dangerously-allow-all-builds
                   pnpm build
             - name: Package application
               run: |
                   cd ${{ github.workspace }}
-                  wget https://github.com/neutralinojs/neutralinojs/releases/download/v6.7.0/neutralinojs-v6.7.0.zip
-                  unzip neutralinojs-v6.7.0.zip -d bin/
+                  wget https://github.com/neutralinojs/neutralinojs/releases/download/v6.9.0/neutralinojs-v6.9.0.zip
+                  unzip neutralinojs-v6.9.0.zip -d bin/
                   pnpx @neutralinojs/neu build
             - uses: actions/upload-artifact@v7
               with:
