@@ -153,16 +153,23 @@ function App() {
     }
 
     function filterDisplayedCodecs() {
+        const copyCodec = {
+            shortName: "copy",
+            description: "Copy",
+            flags: "",
+            encoders: [],
+        };
+
         if (showCommonCodecs()) {
-            setDisplayedCodecs(
-                supportedCodecs.vcodecs.filter((v) =>
-                    commonCodecs.has(v.shortName),
-                ),
+            let codecs = supportedCodecs.vcodecs.filter((v) =>
+                commonCodecs.has(v.shortName),
             );
+            codecs.push(copyCodec);
+            setDisplayedCodecs(codecs);
             return;
         }
 
-        setDisplayedCodecs(supportedCodecs.vcodecs);
+        setDisplayedCodecs([...supportedCodecs.vcodecs, copyCodec]);
     }
 
     function showCommonCodecsChanged(e: InputEvent) {
@@ -546,7 +553,9 @@ function App() {
                                 type="number"
                                 id="outputFps"
                                 value={framerate()}
-                                oninput={(e) => setFramerate(parseInt(e.target.value))}
+                                oninput={(e) =>
+                                    setFramerate(parseInt(e.target.value))
+                                }
                                 title="The framerate of the output. Leave at -1 for unspecified (Same as input)."
                                 min="-1"
                             />

@@ -12,3 +12,8 @@ neutralino.js
 .storage
 *.log
 .tmp
+
+# Flatpak
+flatpak/
+flatpak-repo/
+*.flatpak

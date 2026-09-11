@@ -16,12 +16,13 @@ Neutralino.init();
 
 if (window.NL_OS === "Linux") {
     let accentColorResult = await Neutralino.os.execCommand(
-        `busctl --user call org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop org.freedesktop.portal.Settings ReadOne ss "org.freedesktop.appearance" "accent-color"`,
+        `gdbus call -e -d org.freedesktop.portal.Desktop -o /org/freedesktop/portal/desktop -m org.freedesktop.portal.Settings.ReadOne "org.freedesktop.appearance" "accent-color"`,
     );
 
-    let accentColor = accentColorResult.stdOut
-        .substring(8)
-        .split(" ", 3)
+    let accentColorRaw = accentColorResult.stdOut;
+    let accentColor = accentColorRaw
+        .substring(3, accentColorRaw.length - 4)
+        .split(", ", 3)
         .map((v) => Math.round(parseFloat(v) * 255)) as RGB;
 
     let accentHSV = convert.rgb.hsl(accentColor);

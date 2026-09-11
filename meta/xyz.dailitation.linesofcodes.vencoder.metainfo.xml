@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<component type="desktop-application">
+  <id>xyz.dailitation.linesofcodes.vencoder</id>
+
+  <name>Vencoder</name>
+  <summary>A tool for transcoding videos with FFmpeg</summary>
+
+  <developer id="xyz.dailitation.linesofcodes">
+      <name>Satakun Utama</name>
+  </developer>
+
+  <metadata_license>CC-BY-SA-4.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <recommends>
+    <display_length compare="ge">600</display_length>
+  </recommends>
+
+  <description>
+    <p>
+      A tool to interactively mass transcode videos using FFmpeg, featuring a
+      simple interface to ease the process of adjusting parameters for some
+      encoders.
+    </p>
+  </description>
+
+  <launchable
+        type="desktop-id"
+    >xyz.dailitation.linesofcodes.vencoder.desktop</launchable>
+  <content_rating type="oars-1.1" />
+  <url type="homepage">https://github.com/lines-of-codes/Vencoder</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <image
+            >https://raw.githubusercontent.com/lines-of-codes/Vencoder/refs/heads/main/MainWindow.png</image>
+      <caption>Main window in light mode</caption>
+    </screenshot>
+  </screenshots>
+</component>

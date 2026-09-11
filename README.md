@@ -36,12 +36,28 @@ Vencoder is available on the Arch User Repository as
 
 ### Fedora Linux
 
-Please make sure you have the packages `gtk3` and `webkit2gtk4.1` installed.
-(Although you should likely already have GTK 3 installed)
+Vencoder is now available on [Fedora COPR](https://copr.fedorainfracloud.org/coprs/linesofcodes/vencoder/)
 
 Fedora Linux default `ffmpeg-free` package may also not support as much codecs
 as you want to, Please follow the article on [RPMFusion](https://rpmfusion.org/Howto/Multimedia)
 to install the full FFmpeg version.
+
+If you wish to run the plain executable, Ensure the packages `gtk3` and `webkit2gtk4.1`
+are installed.
+
+## Common Error
+
+If you see "Neutralinojs can't initialize the application server on port: 5540"
+
+Neutralino.js hosts an internal HTTP server containing the app's code on your
+machine, which for Vencoder by default uses the port 5540 _for the main window._
+You can run Vencoder with a different port by providing the argument
+`--port=1234`. On Linux, you can also run `sudo lsof -i :5540` to see which
+application is using that port and close it.
+
+Replace the port number with the available port on your machine, and do note
+that, Vencoder uses the ports 5540, 5541, 5542 for the main window, progress
+window, and settings window respectively.
 
 ## Regarding Performance
 
@@ -51,26 +67,44 @@ idea.
 
 ## Running
 
-In the project's root, To run a basic development setup, you'll need to do the
-following first:
+First, Install Node.js, and optionally `make`.
 
-```
+Install pnpm by following [pnpm's install guide](https://pnpm.io/installation)
+or run `make configure` which will install pnpm with corepack and install the
+front-end's dependencies for you.
+
+Install Neutralino.js by running:
+
+```sh
+# This make sures that pnpm can install stuff globally
+pnpm setup
+
 pnpm install -g @neutralinojs/neu
-cd solid-src
-pnpm install
 ```
 
 Then, in seperate terminals, run `pnpm dev` in the `solid-src` directory and run
 `neu run` in the project's root.
 
-To build, In the project's root, Simply run:
+To build, In the project's root, Run `neu update` first to fetch Neutralino.js'
+binaries, Then run `make build` for a regular plain build, or `make release` to
+make a release build with embedded resources.
 
-```
+If you prefer not to use make, Run:
+
+```sh
 cd solid-src
 pnpm build
 cd ..
 neu build
 ```
+
+### Flatpak
+
+You can run `make flatpak-install` if you wish to build and install the app
+right away.
+
+You can run `make flatpak-repo` then `make flatpak-bundle` if you wish to
+create a `.flatpak` file.
 
 ## Unimplemented Features
 
@@ -112,3 +146,10 @@ encoders supported by your FFmpeg install will show up.
     - [ ] libvpx-vp9
     - [ ] vp9_vaapi
     - [x] vp9_qsv
+
+## Logo
+
+The logo of this program is in [./meta/abomination-inkscape.svg](./meta/abomination-inkscape.svg)
+
+It is a V and the FFmpeg logo smooched together. Improvements are welcome, but no AI
+welcome whatsoever.

@@ -3,6 +3,7 @@
 Type=Application
 Version=1.5
 Name=Vencoder
+Icon=xyz.dailitation.linesofcodes.vencoder.svg
 Exec=/usr/bin/vencoder
 Categories=AudioVideo;Video
 Terminal=false

@@ -1,0 +1,43 @@
+id: xyz.dailitation.linesofcodes.vencoder
+runtime: org.gnome.Platform
+runtime-version: "50"
+sdk: org.gnome.Sdk
+command: vencoder
+add-extensions:
+    org.freedesktop.Platform.ffmpeg-full:
+        version: "24.08"
+        directory: lib/ffmpeg
+cleanup-commands:
+    - mkdir -p ${FLATPAK_DEST}/lib/ffmpeg
+finish-args:
+    - --share=network
+    - --share=ipc
+    - --socket=fallback-x11
+    - --socket=wayland
+    - --device=dri
+    - --filesystem=xdg-videos/Vencoder/:create
+modules:
+    - name: vencoder
+      buildsystem: simple
+      build-commands:
+          - install -Dm0644 xyz.dailitation.linesofcodes.vencoder.metainfo.xml -t ${FLATPAK_DEST}/share/metainfo
+          - install -Dm0644 xyz.dailitation.linesofcodes.vencoder.desktop -t ${FLATPAK_DEST}/share/applications
+          - install -Dm0644 abomination-inkscape.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/xyz.dailitation.linesofcodes.vencoder.svg
+          - install -D vencoder -t ${FLATPAK_DEST}/bin/
+      sources:
+          - type: file
+            path: xyz.dailitation.linesofcodes.vencoder.metainfo.xml
+          - type: file
+            path: xyz.dailitation.linesofcodes.vencoder.desktop
+          - type: file
+            path: abomination-inkscape.svg
+          - type: file
+            path: ../dist/vencoder/vencoder-linux_x64
+            dest-filename: vencoder
+            only-arches:
+                - x86_64
+          - type: file
+            path: ../dist/vencoder/vencoder-linux_arm64
+            dest-filename: vencoder
+            only-arches:
+                - aarch64
