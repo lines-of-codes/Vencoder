@@ -92,9 +92,14 @@ function App() {
         setSettings(e.detail);
     }
 
+    function filesDropped(e: CustomEvent<string[]>) {
+        setFileList(Array.from(new Set([...fileList(), ...e.detail])));
+    }
+
     onMount(async () => {
         events.on("windowFocus", windowIsFocused);
         events.on("windowBlur", windowUnfocused);
+        events.on("filesDropped", filesDropped);
         events.on(SETTINGS_CHANGED, settingsChanged);
         setSettings(await loadSettings());
 
