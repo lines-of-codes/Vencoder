@@ -7,7 +7,7 @@ on:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-slim
         steps:
             - uses: actions/setup-node@v7
               with:
@@ -23,10 +23,12 @@ jobs:
                   pnpm i
                   pnpm build
             - name: Package application
+              env:
+                  NEUTRALINO_VERSION: v6.10.0
               run: |
                   cd ${{ github.workspace }}
-                  wget https://github.com/neutralinojs/neutralinojs/releases/download/v6.10.0/neutralinojs-v6.10.0.zip
-                  unzip neutralinojs-v6.10.0.zip -d bin/
+                  wget https://github.com/neutralinojs/neutralinojs/releases/download/${NEUTRALINO_VERSION}/neutralinojs-${NEUTRALINO_VERSION}.zip
+                  unzip neutralinojs-${NEUTRALINO_VERSION}.zip -d bin/
                   pnpx --allow-build=bufferutil --allow-build=es5-ext --allow-build=utf-8-validate @neutralinojs/neu build
             - uses: actions/upload-artifact@v7
               with:

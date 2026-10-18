@@ -15,7 +15,6 @@ import {
     getAvailableCodecs,
     getLengthMicroseconds,
     getPixelFormats,
-    playFile,
     videoFileExtensions,
     type CodecInfo,
     type CodecList,
@@ -25,7 +24,6 @@ import Neutralino from "@neutralinojs/lib";
 import H264Options from "./components/H264Options";
 import { getVencoderFolder } from "./util/path";
 import "./css/icons.css";
-import BreezeIcon from "./components/BreezeIcon";
 import AV1Options from "./components/AV1Options";
 import DNxHDOptions from "./components/DNxHDOptions";
 import HelpButton from "./components/HelpButton";
@@ -35,6 +33,8 @@ import {
     loadSettings,
     SETTINGS_CHANGED,
 } from "./util/settings";
+import Sidebar from "./components/Sidebar";
+import { createStore } from "solid-js/store";
 
 const commonCodecs = new Set(["h264", "hevc", "vp9", "av1", "dnxhd", "prores"]);
 
@@ -58,9 +58,11 @@ function App() {
     const [selectedCodec, setSelectedCodec] = createSignal<CodecInfo>();
     const [selectedEncoder, setSelectedEncoder] = createSignal("");
     const [customFileExt, setCustomFileExt] = createSignal("");
-    const [globalopts, setGlobalopts] = createSignal("");
-    const [inputopts, setInputopts] = createSignal("");
-    const [outputopts, setOutputopts] = createSignal("");
+    const [customOpts, setCustomOpts] = createStore({
+        global: "",
+        input: "",
+        output: "",
+    });
     const [audioCodec, setAudioCodec] = createSignal("copy");
     const [audioEncoder, setAudioEncoder] = createSignal("");
     const [pixelFormatList, setPixelFormatList] = createSignal([] as string[]);
@@ -122,41 +124,6 @@ function App() {
         events.off("windowBlur", windowUnfocused);
     });
 
-    function removeBtnClicked() {
-        if (selectedClip() === "") return;
-
-        const list = fileList();
-        const targetClip = selectedClip();
-        setFileList(list.filter((v) => v !== targetClip));
-        setSelectedClip("");
-    }
-
-    function removeAllBtnClicked() {
-        setFileList([]);
-        setSelectedClip("");
-    }
-
-    function playBtnClicked() {
-        playFile(selectedClip(), settings());
-    }
-
-    async function openBtnClicked() {
-        const filePaths = await Neutralino.os.showOpenDialog("Select Videos", {
-            multiSelections: true,
-            filters: [
-                {
-                    extensions: ["mp4", "mkv", "mov", "webm"],
-                    name: "Common Video Files",
-                },
-                {
-                    extensions: ["*"],
-                    name: "All Files",
-                },
-            ],
-        });
-        setFileList(Array.from(new Set([...fileList(), ...filePaths])));
-    }
-
     function filterDisplayedCodecs() {
         const copyCodec = {
             shortName: "copy",
@@ -197,19 +164,6 @@ function App() {
         setSelectedEncoder(encoder);
     }
 
-    createEffect(() => {
-        ffmpegParams = {
-            vcodec: selectedCodec()?.shortName ?? "",
-            encoder: selectedEncoder(),
-            useropts: {
-                global: "",
-                input: "",
-                output: "",
-            },
-            extraopts: {},
-        };
-    });
-
     function getAudioEncoders() {
         const codec = audioCodec();
         let encoders = audioCodecList().find(
@@ -233,17 +187,6 @@ function App() {
     ) {
         ffmpegParams[key] = value;
         setOutputCommand(generateOutputCommand(ffmpegParams));
-    }
-
-    function settingsBtnPressed() {
-        Neutralino.window.create(`${window.location.href}settings`, {
-            width: 800,
-            height: 400,
-            x: 120,
-            y: 120,
-            injectGlobals: true,
-            processArgs: "--port=5542",
-        });
     }
 
     createEffect(() => {
@@ -275,11 +218,7 @@ function App() {
             preset: ffmpegParams.preset,
             twopass: ffmpegParams.twopass,
             vbitrate: ffmpegParams.vbitrate,
-            useropts: {
-                global: globalopts(),
-                input: inputopts(),
-                output: outputopts(),
-            },
+            useropts: customOpts,
             pixelFormat: pixFmt === "" ? undefined : pixFmt,
             r: rate < 0 ? undefined : rate,
             extraopts: ffmpegParams.extraopts,
@@ -404,7 +343,7 @@ function App() {
             y: 120,
             injectGlobals: true,
             maximizable: false,
-            processArgs: "--port=5541",
+            processArgs: `--port=${window.NL_PORT + 1}`,
         });
     }
 
@@ -416,59 +355,13 @@ function App() {
                 >
                     <div class="page-title">Vencoder</div>
                 </header>
-                <div
-                    class="row flex-col gap2 k-white-sidebar k-rborder h-full"
-                    style={{ padding: "8px" }}
-                >
-                    <ul class="k-list-view bordered col">
-                        <For each={fileList()}>
-                            {(item, _) => (
-                                <li
-                                    class={
-                                        item == selectedClip() ? "selected" : ""
-                                    }
-                                    onclick={() => setSelectedClip(item)}
-                                >
-                                    {item}
-                                </li>
-                            )}
-                        </For>
-                    </ul>
-                    <div class="row gap2">
-                        <button onclick={openBtnClicked} class="k-button">
-                            Open...
-                        </button>
-                        <button onclick={removeAllBtnClicked} class="k-button">
-                            Remove All
-                        </button>
-                        <button
-                            disabled={selectedClip() === ""}
-                            onclick={removeBtnClicked}
-                            class="icon-button k-button"
-                        >
-                            <BreezeIcon
-                                icon="b b-trash-empty"
-                                alt="Remove Selected Video"
-                            />
-                        </button>
-                        <button
-                            disabled={selectedClip() === ""}
-                            onclick={playBtnClicked}
-                            class="icon-button k-button"
-                        >
-                            <BreezeIcon
-                                icon="playback-start"
-                                alt="Preview Selected Video"
-                            />
-                        </button>
-                        <button
-                            class="icon-button k-button"
-                            onclick={settingsBtnPressed}
-                        >
-                            <BreezeIcon icon="configure" alt="Configure" />
-                        </button>
-                    </div>
-                </div>
+                <Sidebar
+                    fileList={fileList}
+                    setFileList={setFileList}
+                    selectedClip={selectedClip}
+                    setSelectedClip={setSelectedClip}
+                    settings={settings}
+                />
             </div>
             <div class="row flex-col h-full" style={{ width: "100%" }}>
                 <header
@@ -693,11 +586,11 @@ function App() {
                                 type="text"
                                 name="globalopts"
                                 id="globalopts"
-                                value={globalopts()}
+                                value={customOpts.global}
                                 oninput={(e) => {
                                     ffmpegParams.useropts.global =
                                         e.target.value;
-                                    setGlobalopts(e.target.value);
+                                    setCustomOpts("global", e.target.value);
                                 }}
                             />
                             <label for="inputopts">Input Options</label>
@@ -705,11 +598,11 @@ function App() {
                                 type="text"
                                 name="inputopts"
                                 id="inputopts"
-                                value={inputopts()}
+                                value={customOpts.input}
                                 oninput={(e) => {
                                     ffmpegParams.useropts.input =
                                         e.target.value;
-                                    setInputopts(e.target.value);
+                                    setCustomOpts("input", e.target.value);
                                 }}
                             />
                             <label for="outputopts">Output Options</label>
@@ -717,11 +610,11 @@ function App() {
                                 type="text"
                                 name="outputopts"
                                 id="outputopts"
-                                value={outputopts()}
+                                value={customOpts.output}
                                 oninput={(e) => {
                                     ffmpegParams.useropts.output =
                                         e.target.value;
-                                    setOutputopts(e.target.value);
+                                    setCustomOpts("output", e.target.value);
                                 }}
                             />
                         </form>

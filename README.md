@@ -10,7 +10,7 @@ Uses Neutralino.js and Solid.js (I have skill issues and can't use Qt).
 This app _tries_ to imitate KDE's Kirigami UI framework, and also makes use of
 Breeze icons (Located in `./solid-src/public/breeze[-dark]`)
 
-Vencoder is tested with FFmpeg 8.0.1, should be compatible with older versions
+Vencoder is tested with FFmpeg 8.1.3, should be compatible with older versions
 but is not guaranteed.
 
 ## Installation
@@ -36,7 +36,7 @@ Vencoder is available on the Arch User Repository as
 
 ### Fedora Linux
 
-Vencoder is now available on [Fedora COPR](https://copr.fedorainfracloud.org/coprs/linesofcodes/vencoder/)
+Vencoder is available on [Fedora COPR](https://copr.fedorainfracloud.org/coprs/linesofcodes/vencoder/)
 
 Fedora Linux default `ffmpeg-free` package may also not support as much codecs
 as you want to, Please follow the article on [RPMFusion](https://rpmfusion.org/Howto/Multimedia)
@@ -44,6 +44,16 @@ to install the full FFmpeg version.
 
 If you wish to run the plain executable, Ensure the packages `gtk3` and `webkit2gtk4.1`
 are installed.
+
+### Flatpak
+
+The app is not available on Flathub at the moment, but can be built as a plain
+Flatpak. Note that this way of running it is also experimental.
+
+Install GNU Make and Flatpak Builder, then after cloning or downloading the
+project, run `make flatpak-bundle` in the project root to make a Flatpak bundle
+that can be shared, or run `make flatpak-install` to directly install it on
+your system.
 
 ## Common Error
 
@@ -56,8 +66,9 @@ You can run Vencoder with a different port by providing the argument
 application is using that port and close it.
 
 Replace the port number with the available port on your machine, and do note
-that, Vencoder uses the ports 5540, 5541, 5542 for the main window, progress
-window, and settings window respectively.
+that, With `n` being 5540 or the port you specified, Vencoder uses the ports
+n, n+1, and n+2 for the main window, progress window, and settings window
+respectively.
 
 ## Regarding Performance
 
