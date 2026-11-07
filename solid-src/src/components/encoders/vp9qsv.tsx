@@ -101,16 +101,6 @@ function VP9QsvOptions({
                     oninput={(e) => setBitrate(parseInt(e.target.value))}
                 />
             </Show>
-            <Show when={rateControl() === "vbr" || rateControl() === "icq"}>
-                <div></div>
-                <div
-                    class="checkbox-container"
-                    title="May not be available on some platforms."
-                >
-                    <input type="checkbox" name="lookAhead" id="lookAhead" />
-                    <label for="lookAhead">Look-ahead mode</label>
-                </div>
-            </Show>
         </section>
     );
 }

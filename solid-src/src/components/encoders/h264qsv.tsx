@@ -19,6 +19,7 @@ function H264QsvOptions({
     const [globalQuality, setGlobalQuality] = createSignal(18);
     const [bitrate, setBitrate] = createSignal(DEFAULT_BITRATE);
     const [cqp, setCqp] = createSignal(18);
+    const [lookAhead, setLookAhead] = createSignal(false);
 
     createEffect(() => {
         const opts: Record<string, string> = {};
@@ -40,6 +41,10 @@ function H264QsvOptions({
                 onParamChanged("vbitrate", undefined);
                 opts["q"] = cqp().toString();
                 break;
+        }
+
+        if (lookAhead()) {
+            opts["look_ahead"] = "true";
         }
 
         onParamChanged("extraopts", {
@@ -126,7 +131,13 @@ function H264QsvOptions({
                     class="checkbox-container"
                     title="May not be available on some platforms."
                 >
-                    <input type="checkbox" name="lookAhead" id="lookAhead" />
+                    <input
+                        type="checkbox"
+                        name="lookAhead"
+                        id="lookAhead"
+                        checked={lookAhead()}
+                        oninput={(e) => setLookAhead(e.target.checked)}
+                    />
                     <label for="lookAhead">Look-ahead mode</label>
                 </div>
             </Show>

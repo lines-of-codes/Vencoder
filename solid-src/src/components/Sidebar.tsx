@@ -10,12 +10,14 @@ function Sidebar({
     selectedClip,
     setSelectedClip,
     settings,
+    settingsDialog,
 }: {
     fileList: Accessor<string[]>;
     setFileList: (files: string[]) => void;
     selectedClip: Accessor<string>;
     setSelectedClip: (clip: string) => void;
     settings: Accessor<UserSettings>;
+    settingsDialog: HTMLDialogElement;
 }) {
     async function openBtnClicked() {
         const filePaths = await Neutralino.os.showOpenDialog("Select Videos", {
@@ -39,7 +41,7 @@ function Sidebar({
 
         const list = fileList();
         const targetClip = selectedClip();
-        setFileList(list.filter((v) => v !== targetClip));
+        setFileList(list.filter((v: string) => v !== targetClip));
         setSelectedClip("");
     }
 
@@ -53,14 +55,7 @@ function Sidebar({
     }
 
     function settingsBtnPressed() {
-        Neutralino.window.create(`${window.location.href}settings`, {
-            width: 800,
-            height: 400,
-            x: 120,
-            y: 120,
-            injectGlobals: true,
-            processArgs: `--port=${window.NL_PORT + 2}`,
-        });
+        settingsDialog.showModal();
     }
 
     return (
@@ -70,7 +65,7 @@ function Sidebar({
         >
             <ul class="k-list-view bordered col">
                 <For each={fileList()}>
-                    {(item, _) => (
+                    {(item: string, _: any) => (
                         <li
                             class={item == selectedClip() ? "selected" : ""}
                             onclick={() => setSelectedClip(item)}

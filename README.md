@@ -124,7 +124,7 @@ The Settings page doesn't work yet.
 ## Encoder Support
 
 Vencoder will only support predefined options for "common" codecs. What is
-considered common depends solely on the needs of the program's users.
+considered common depends solely on the needs of the program's users. (me)
 
 Note that, not all of these encoders will show up in the program. Only the
 encoders supported by your FFmpeg install will show up.
@@ -135,7 +135,7 @@ encoders supported by your FFmpeg install will show up.
     - [x] libsvtav1
     - [ ] av1_amf
     - [x] av1_nvenc (Untested as I don't have a 40/50 series card)
-    - [ ] av1_qsv
+    - [x] av1_qsv (Untested as I don't have an Intel Arc)
     - [ ] av1_vaapi
 - [x] DNxHD (Does not provide options to deal with its pickiness yet)
 - [x] H.264

@@ -35,6 +35,7 @@ import {
 } from "./util/settings";
 import Sidebar from "./components/Sidebar";
 import { createStore } from "solid-js/store";
+import Settings from "./pages/Settings";
 
 const commonCodecs = new Set(["h264", "hevc", "vp9", "av1", "dnxhd", "prores"]);
 
@@ -80,6 +81,7 @@ function App() {
         },
         extraopts: {},
     };
+    let settingsDialog: HTMLDialogElement | undefined;
 
     function windowIsFocused() {
         setWindowFocused(true);
@@ -349,6 +351,7 @@ function App() {
 
     return (
         <main class="row">
+            <Settings ref={settingsDialog} />
             <div class="row flex-col h-full">
                 <header
                     class={`k-page-header k-rborder ${windowFocused() ? "" : "window-blur"}`}
@@ -361,6 +364,7 @@ function App() {
                     selectedClip={selectedClip}
                     setSelectedClip={setSelectedClip}
                     settings={settings}
+                    settingsDialog={settingsDialog!}
                 />
             </div>
             <div class="row flex-col h-full" style={{ width: "100%" }}>
@@ -509,6 +513,18 @@ function App() {
                                     onParamChanged={onParametersChanged}
                                 />
                             </Match>
+                            <Match
+                                when={
+                                    selectedEncoder() === "vp9_qsv" ||
+                                    selectedEncoder() == "av1_qsv"
+                                }
+                            >
+                                <VP9QsvOptions
+                                    codec={selectedCodec()}
+                                    params={ffmpegParams}
+                                    onParamChanged={onParametersChanged}
+                                />
+                            </Match>
                             <Match when={selectedCodec()?.shortName === "av1"}>
                                 <AV1Options
                                     codec={selectedCodec()}
@@ -521,13 +537,6 @@ function App() {
                                 when={selectedCodec()?.shortName === "dnxhd"}
                             >
                                 <DNxHDOptions
-                                    codec={selectedCodec()}
-                                    params={ffmpegParams}
-                                    onParamChanged={onParametersChanged}
-                                />
-                            </Match>
-                            <Match when={selectedEncoder() === "vp9_qsv"}>
-                                <VP9QsvOptions
                                     codec={selectedCodec()}
                                     params={ffmpegParams}
                                     onParamChanged={onParametersChanged}

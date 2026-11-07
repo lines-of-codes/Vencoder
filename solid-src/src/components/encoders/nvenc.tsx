@@ -5,7 +5,7 @@ import {
     type ProgramFFmpegArguments,
     DEFAULT_BITRATE,
 } from "@/util/ffmpeg";
-import { createEffect, createSignal, onMount, Show } from "solid-js";
+import { createEffect, createSignal, onMount, onCleanup, Show } from "solid-js";
 import RateInput from "../RateInput";
 import HelpButton from "../HelpButton";
 
@@ -41,6 +41,10 @@ function NvEncOptions({
 
     onMount(() => {
         onParamChanged("hwaccel", "cuda");
+    });
+
+    onCleanup(() => {
+        onParamChanged("hwaccel", "auto");
     });
 
     createEffect(() => {

@@ -19,6 +19,10 @@
     background-image: url("/breeze/actions/16/help-about.svg");
 }
 
+.b-window-close {
+    background-image: url("/breeze/actions/16/window-close.svg");
+}
+
 @media screen and (prefers-color-scheme: dark) {
     .b-trash-empty {
         background-image: url("/breeze-dark/actions/16/trash-empty.svg");
@@ -34,5 +38,9 @@
 
     .b-help-about {
         background-image: url("/breeze-dark/actions/16/help-about.svg");
+    }
+
+    .b-window-close {
+        background-image: url("/breeze-dark/actions/16/window-close.svg");
     }
 }
