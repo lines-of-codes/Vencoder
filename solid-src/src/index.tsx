@@ -7,7 +7,6 @@ import Neutralino from "@neutralinojs/lib";
 import { clamp } from "./util/math.ts";
 import convert, { type RGB } from "color-convert";
 import { Route, Router } from "@solidjs/router";
-import Settings from "./pages/Settings.tsx";
 import ProgressPage from "./pages/ProgressPage.tsx";
 
 const root = document.getElementById("root");
@@ -45,7 +44,6 @@ render(
     () => (
         <Router>
             <Route path="/" component={App} />
-            <Route path="/settings" component={Settings} />
             <Route path="/progress" component={ProgressPage} />
         </Router>
     ),
